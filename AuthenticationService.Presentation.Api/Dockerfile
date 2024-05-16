@@ -10,6 +10,9 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["AuthenticationService.Presentation.Api/AuthenticationService.Presentation.Api.csproj", "AuthenticationService.Presentation.Api/"]
+COPY ["AuthenticationService.Application/AuthenticationService.Application.csproj", "AuthenticationService.Application/"]
+COPY ["AuthenticationService.Domain/AuthenticationService.Domain.csproj", "AuthenticationService.Domain/"]
+COPY ["AuthenticationService.Infra/AuthenticationService.Infra.csproj", "AuthenticationService.Infra/"]
 RUN dotnet restore "./AuthenticationService.Presentation.Api/AuthenticationService.Presentation.Api.csproj"
 COPY . .
 WORKDIR "/src/AuthenticationService.Presentation.Api"
