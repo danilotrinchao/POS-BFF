@@ -20,9 +20,9 @@ namespace AuthenticationService.Presentation.Api.Controllers
         public async Task<IActionResult> Login(string email, string password)
         {
             // Chama o serviço de autenticação para fazer login
-            var result = await _authService.LoginAsync(email, password);
+            var result = await _authService.Login(email, password);
 
-            if (result.IsNullOrEmpty())
+            if (!result.IsNullOrEmpty())
             {
                 return Ok(result); // Retorna o token JWT ou outro dado relevante
             }

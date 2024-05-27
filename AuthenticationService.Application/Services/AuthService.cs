@@ -1,8 +1,13 @@
 ﻿using AuthenticationService.Application.Contracts;
+using AuthenticationService.Core.Domain.Configurations;
+using AuthenticationService.Core.Domain.Repositories;
+using AuthenticationService.Domain.Entities;
 using AuthenticationService.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -17,12 +22,16 @@ namespace AuthenticationService.Application.Services
         private readonly ITokenService _tokenService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICryptography _criptography;
-        public AuthService(IUserRepository userRepository, ITokenService tokenService, IHttpContextAccessor httpContextAccessor, ICryptography criptography)
+        private readonly JwtSettings _jwtSettings;
+        private readonly IUserRoleRepository _userRoleRepository;
+        public AuthService(IUserRepository userRepository, ITokenService tokenService, IHttpContextAccessor httpContextAccessor, ICryptography criptography, JwtSettings jwtSettings, IUserRoleRepository userRoleRepository)
         {
             _userRepository = userRepository;
             _tokenService = tokenService;
             _httpContextAccessor = httpContextAccessor;
             _criptography = criptography;
+            _jwtSettings = jwtSettings;
+            _userRoleRepository = userRoleRepository;
         }
 
         public async Task<string> RefreshTokenAsync()
@@ -52,7 +61,14 @@ namespace AuthenticationService.Application.Services
         {
             // Buscar o usuário pelo e-mail
             var user = await _userRepository.GetByEmail(email);
-
+            var roles = _userRoleRepository.GetByUserIdAsync(user.Id);
+            if (roles != null)
+            {
+                foreach (var item in roles.Result)
+                {
+                    user.RoleIds.Add(item.RoleId);
+                }
+            }
             // Verificar se o usuário existe
             if (user == null)
             {
@@ -73,17 +89,71 @@ namespace AuthenticationService.Application.Services
 
             return token;
         }
-
-
-
-        
-
-        private bool VerifyPassword(string password, byte[] passwordHash, byte[] passwordSalt)
+        public async Task<string> Login(string email, string password)
         {
-            using (var hmac = new HMACSHA256(passwordSalt))
+            var token = Authenticate(email, password);
+            if (string.IsNullOrEmpty(token))
             {
-                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
+                // Log failed login attempt
+                return null;
+            }
+            return token;
+        }
+
+        public string Authenticate(string email, string password)
+        {
+            // Validar usuário e senha
+            var user = ValidateUser(email, password);
+            if (user == null) return null;
+
+            var roles = _userRoleRepository.GetByUserIdAsync(user.Id);
+            if (roles != null)
+            {
+                user.RoleIds = new List<Guid>();
+                foreach (var item in roles.Result)
+                {
+                    user.RoleIds.Add(item.RoleId);
+                }
+            }
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
+            };
+
+            // Adicionar reivindicações de função para cada ID de função do usuário
+            foreach (var roleId in user.RoleIds)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, roleId.ToString()));
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expires = DateTime.Now.AddMinutes(_jwtSettings.DurationInMinutes);
+
+            var token = new JwtSecurityToken(
+                _jwtSettings.Issuer,
+                _jwtSettings.Audience,
+                claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+
+        private User ValidateUser(string email, string password)
+        {
+            var user = _userRepository.GetByEmail(email);
+            
+            if (BCrypt.Net.BCrypt.Verify(password, user.Result.PasswordHash))
+            {
+                return user.Result;
+            }
+            else
+            {
+                return null; 
             }
         }
     }

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{07EE357B-7B3C-4263-8984-18F55E88CD01}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{5457FB6C-96E4-4C7D-8D6C-89243D1F30EA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5457FB6C-96E4-4C7D-8D6C-89243D1F30EA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{FA2F38BE-2D92-4015-BEC3-5183248DD015}"
 EndProject
@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationService.Application", "AuthenticationService.Application\AuthenticationService.Application.csproj", "{A78D81EE-0D3B-4EF4-8AFE-B267B773D0DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationService.Domain", "AuthenticationService.Domain\AuthenticationService.Domain.csproj", "{E685B5B5-8CD2-4E75-89CE-76A1A4B373DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationService.Core.Domain", "AuthenticationService.Domain\AuthenticationService.Core.Domain.csproj", "{E685B5B5-8CD2-4E75-89CE-76A1A4B373DE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationService.Infra", "AuthenticationService.Infra\AuthenticationService.Infra.csproj", "{A8994D7B-01FB-488C-A01E-891D86AE3726}"
 EndProject

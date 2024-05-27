@@ -13,5 +13,6 @@ namespace AuthenticationService.Application.Contracts
         byte[] DecryptPassword(byte[] passwordHash, byte[] passwordSalt);
         string CriptografarSenha(string senha);
         bool VerificarSenha(string senhaDigitada, string senhaCadastrada);
+        string CryptographyPassword(string senha);
     }
 }

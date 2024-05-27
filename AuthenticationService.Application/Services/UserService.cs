@@ -1,14 +1,8 @@
 ﻿using AuthenticationService.Application.Contracts;
 using AuthenticationService.Application.DTOs;
+using AuthenticationService.Core.Domain.Repositories;
 using AuthenticationService.Domain.Entities;
 using AuthenticationService.Domain.Repositories;
-using AuthenticationService.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuthenticationService.Application.Services
 {
@@ -17,12 +11,14 @@ namespace AuthenticationService.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IAddressRepository _addressRepository;
         private readonly ICryptography _criptography;
+        private readonly IUserRoleRepository _userRoleRepository;
 
-        public UserService(IUserRepository userRepository, IAddressRepository addressRepository, ICryptography criptography)
+        public UserService(IUserRepository userRepository, IAddressRepository addressRepository, ICryptography criptography, IUserRoleRepository userRoleRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _addressRepository = addressRepository;
             _criptography = criptography;
+            _userRoleRepository = userRoleRepository;
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -55,9 +51,10 @@ namespace AuthenticationService.Application.Services
                 DtNascimento = userDto.DtNascimento,
                 Inative = true,
                 UserType = userDto.UserType,
-                PasswordHash = _criptography.CriptografarSenha(userDto.Password)
+                PasswordHash = _criptography.CryptographyPassword(userDto.Password),
+                RoleIds = userDto.RoleIds,
             };
-
+            
             
             // Primeiro, insira o endereço no banco de dados
             int addressId = await _addressRepository.InsertAsync(user.Address);
@@ -66,7 +63,12 @@ namespace AuthenticationService.Application.Services
             user.Address.Id = addressId;
 
             // Finalmente, insira o usuário no banco de dados
-            return await _userRepository.InsertAsync(user);
+            var result = await _userRepository.InsertAsync(user);
+            foreach (var item in user.RoleIds)
+            {
+                await _userRoleRepository.InsertAsync(result, item);
+            }
+            return result;
         }
 
         public async Task<bool> UpdateUserAsync(User user)

@@ -28,6 +28,10 @@ namespace AuthenticationService.Infra.Utils
 
             return sb.ToString();
         }
+        public string CryptographyPassword(string senha)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(senha);
+        }
         public bool VerificarSenha(string senhaDigitada, string senhaCadastrada)
         {
             if (string.IsNullOrEmpty(senhaCadastrada))

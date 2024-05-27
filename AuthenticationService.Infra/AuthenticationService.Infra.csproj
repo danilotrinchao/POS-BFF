@@ -25,8 +25,4 @@
     <ProjectReference Include="..\AuthenticationService.Application\AuthenticationService.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ExternalServices\" />
-  </ItemGroup>
-
 </Project>

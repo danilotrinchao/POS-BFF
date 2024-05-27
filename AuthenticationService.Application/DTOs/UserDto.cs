@@ -20,7 +20,7 @@ namespace AuthenticationService.Application.DTOs
         public string Phone { get; set; }
         public EUserType UserType { get; set; }
         public Address Address { get; set; }
-
+        public List<Guid> RoleIds { get; set; }
         public string Password { get; set; }
     }
 }

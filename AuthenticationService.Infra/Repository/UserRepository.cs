@@ -1,4 +1,5 @@
-﻿using AuthenticationService.Domain.Entities;
+﻿using AuthenticationService.Core.Domain.ValueObjects;
+using AuthenticationService.Domain.Entities;
 using AuthenticationService.Domain.Repositories;
 using Dapper;
 using System.Data;
@@ -29,7 +30,9 @@ namespace AuthenticationService.Infra.Repository
          public async Task<User> GetByEmail(string email)
         {
             var query = "SELECT * FROM \"User\" WHERE Email = @email";
-            return await _dbConnection.QueryFirstOrDefaultAsync<User>(query, new { email = email });
+            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(query, new { email = email });
+            return user;
+
         }
 
         public async Task<int> InsertAsync(User entity)
@@ -86,6 +89,12 @@ namespace AuthenticationService.Infra.Repository
             var query = $"DELETE FROM \"User\" WHERE Id = @Id";
             var rowsAffected = await _dbConnection.ExecuteAsync(query, new { Id = id });
             return rowsAffected > 0;
+        }
+
+        public async Task AddUserToRoleAsync(UserRole userRole)
+        {
+            var query = "INSERT INTO UserRole (UserId, RoleId) VALUES (@UserId, @RoleId)";
+            await _dbConnection.ExecuteAsync(query, userRole);
         }
     }
 }

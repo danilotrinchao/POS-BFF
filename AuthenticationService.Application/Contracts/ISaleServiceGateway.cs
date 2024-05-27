@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace AuthenticationService.Application.Contracts
 {
-    public interface IAuthService
+    public interface ISaleServiceGateway
     {
-        
-        Task<string> Login(string email, string password);
-        Task<string> RefreshTokenAsync();
-    }
 
+    }
 }

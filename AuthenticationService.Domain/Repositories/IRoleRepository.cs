@@ -7,8 +7,12 @@ using System.Threading.Tasks;
 
 namespace AuthenticationService.Domain.Repositories
 {
-    public interface IRoleRepository : IRepository<Role>
+    public interface IRoleRepository
     {
-        // Adicione métodos específicos do repositório de roles, se necessário
+        Task<IEnumerable<Role>> GetAllAsync();
+        Task<Role> GetByIdAsync(Guid id);
+        Task<Guid> InsertAsync(Role entity);
+        Task<bool> UpdateAsync(Role entity);
+        Task<bool> DeleteAsync(Guid id);
     }
 }
