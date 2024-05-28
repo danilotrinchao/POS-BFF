@@ -57,38 +57,7 @@ namespace AuthenticationService.Application.Services
             return null;
         }
 
-        public async Task<string> LoginAsync(string email, string password)
-        {
-            // Buscar o usuário pelo e-mail
-            var user = await _userRepository.GetByEmail(email);
-            var roles = _userRoleRepository.GetByUserIdAsync(user.Id);
-            if (roles != null)
-            {
-                foreach (var item in roles.Result)
-                {
-                    user.RoleIds.Add(item.RoleId);
-                }
-            }
-            // Verificar se o usuário existe
-            if (user == null)
-            {
-                throw new Exception("Usuário não encontrado");
-            }
-
-            // Descriptografar a senha armazenada no banco de dados
-            var decryptedPassword = _criptography.VerificarSenha(password, user.PasswordHash);
-
-            // Comparar a senha criptografada do usuário com a senha fornecida
-            if (decryptedPassword)
-            {
-                throw new Exception("Senha incorreta");
-            }
-
-            // Gerar token de autenticação para o usuário
-            var token = _tokenService.GenerateToken(user);
-
-            return token;
-        }
+       
         public async Task<string> Login(string email, string password)
         {
             var token = Authenticate(email, password);
@@ -97,6 +66,12 @@ namespace AuthenticationService.Application.Services
                 // Log failed login attempt
                 return null;
             }
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("accessToken", token, new CookieOptions
+            {
+                HttpOnly = true, // Para proteger contra ataques XSS
+                Secure = true, // Para enviar o cookie apenas em conexões HTTPS
+                SameSite = SameSiteMode.Strict // Para restringir o envio do cookie em solicitações de origens diferentes
+            });
             return token;
         }
 

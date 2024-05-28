@@ -66,8 +66,28 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-builder.Services.AddHttpClient<ISaleClientServiceGateway, SalesClientServiceGateway>();
+// Configuração do HttpClient para ISaleServiceGateway
+builder.Services.AddTransient<ISaleClientServiceGateway, SalesClientServiceGateway>();
+builder.Services.AddTransient<ISaleProductServiceGateway, SaleProductServiceGateway>();
+builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway>();
+builder.Services.AddHttpClient("SalesApi",
+      c => c.BaseAddress = new Uri("https://localhost:7250/"));
+//builder.Services.AddHttpClient<ISaleClientServiceGateway, SalesClientServiceGateway>(client =>
+//{
+//    client.BaseAddress = new Uri("https://localhost:7250/");
+//    client.DefaultRequestHeaders.Add("Accept", "application/json");
+//});
+
+// Configurar autenticação e autorização
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SellerOrAdmin", policy =>
+        policy.RequireRole("Seller", "Admin"));
+});
 builder.Services.AddHttpContextAccessor();
 
 

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AuthenticationService.Application.Contracts
+namespace AuthenticationService.Core.Domain.Enums
 {
-    public interface ISaleServiceGateway
+    public enum EProductType
     {
-
+        PhysiqueProduct = 1,
+        VirtualProduct = 2
     }
 }

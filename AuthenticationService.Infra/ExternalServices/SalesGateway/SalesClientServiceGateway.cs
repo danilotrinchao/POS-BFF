@@ -1,67 +1,141 @@
-﻿using AuthenticationService.Application.Contracts;
-using AuthenticationService.Core.Domain.Gateways;
-using AuthenticationService.Core.Domain.Gateways.Sales;
+﻿using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Requets;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Http;
+using AuthenticationService.Application.Contracts;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
+
 
 namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 {
     public class SalesClientServiceGateway : ISaleClientServiceGateway
     {
-        private readonly HttpClient _httpClient;
+        private static IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
-
-        public SalesClientServiceGateway(HttpClient httpClient, IConfiguration configuration)
+        private readonly IAuthService _authService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public SalesClientServiceGateway(
+            IHttpClientFactory httpClientFactory,
+            IConfiguration configuration,
+            IAuthService authService,
+            IHttpContextAccessor httpContextAccessor)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _configuration = configuration;
-            _httpClient.BaseAddress = new Uri(_configuration["SalesApi:BaseUrl"]);
+            _authService = authService;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private async Task<HttpClient> CreateHttpClientAsync()
+        {
+            var baseAddress = _configuration["SalesApi:baseAddress"];
+            var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
+            httpClient.BaseAddress = new Uri(baseAddress);
+            var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
+
+            // Incluir o token no cabeçalho de autorização das requisições HTTP
+            // httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // Adicionar cabeçalho de autorização
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
+            }
+
+            return httpClient;
         }
 
         public async Task<int> CreateClientAsync(ClientRequest client)
         {
-            var response = await _httpClient.PostAsJsonAsync("clients", client);
-            response.EnsureSuccessStatusCode();
-            var createdClient = await response.Content.ReadFromJsonAsync<ClientRequest>();
-            return createdClient?.Id ?? 0;
+            try
+            {
+                var httpClient = await CreateHttpClientAsync();
+                var response = await httpClient.PostAsJsonAsync("api/Client", client);
+                response.EnsureSuccessStatusCode();
+                var createdClient = await response.Content.ReadFromJsonAsync<ClientRequest>();
+                return createdClient?.Id ?? 0;
+            }
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<ClientRequest> GetClientByIdAsync(int id)
         {
-            var response = await _httpClient.GetAsync($"clients/{id}");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return await response.Content.ReadFromJsonAsync<ClientRequest>();
+                var httpClient = await CreateHttpClientAsync();
+                var response = await httpClient.GetAsync($"api/Client/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<ClientRequest>();
+                }
+                throw new HttpRequestException(response.ReasonPhrase);
             }
-            return null;
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<IEnumerable<ClientRequest>> GetAllClientsAsync()
         {
-            var response = await _httpClient.GetAsync("clients");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return await response.Content.ReadFromJsonAsync<IEnumerable<ClientRequest>>();
+                var httpClient = await CreateHttpClientAsync();
+                var response = await httpClient.GetAsync("api/Client");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<IEnumerable<ClientRequest>>();
+                }
+                throw new HttpRequestException(response.ReasonPhrase);
             }
-            return null;
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<bool> UpdateClientAsync(ClientRequest client)
         {
-            var response = await _httpClient.PutAsJsonAsync($"clients/{client.Id}", client);
-            return response.IsSuccessStatusCode;
+            try
+            {
+                var httpClient = await CreateHttpClientAsync();
+                var response = await httpClient.PutAsJsonAsync($"api/Client/{client.Id}", client);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<bool> DeleteClientAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"clients/{id}");
-            return response.IsSuccessStatusCode;
+            try
+            {
+                var httpClient = await CreateHttpClientAsync();
+                var response = await httpClient.DeleteAsync($"api/Client/{id}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
         }
     }
+
+
 }
