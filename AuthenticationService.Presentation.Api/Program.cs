@@ -1,6 +1,7 @@
 using AuthenticationService.Application.Contracts;
 using AuthenticationService.Application.Services;
 using AuthenticationService.Core.Domain.Configurations;
+using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Repositories;
 using AuthenticationService.Domain.Repositories;
@@ -72,15 +73,11 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddTransient<ISaleClientServiceGateway, SalesClientServiceGateway>();
 builder.Services.AddTransient<ISaleProductServiceGateway, SaleProductServiceGateway>();
 builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway>();
+builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
 builder.Services.AddHttpClient("SalesApi",
       c => c.BaseAddress = new Uri("https://localhost:7250/"));
-//builder.Services.AddHttpClient<ISaleClientServiceGateway, SalesClientServiceGateway>(client =>
-//{
-//    client.BaseAddress = new Uri("https://localhost:7250/");
-//    client.DefaultRequestHeaders.Add("Accept", "application/json");
-//});
-
-// Configurar autenticação e autorização
+builder.Services.AddHttpClient("CashierApi",
+      c => c.BaseAddress = new Uri("https://localhost:7209/"));
 
 
 builder.Services.AddAuthorization(options =>

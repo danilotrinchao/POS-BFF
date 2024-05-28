@@ -1,27 +1,20 @@
-﻿using AuthenticationService.Application.Contracts;
-using AuthenticationService.Core.Domain.Gateways.Sales;
+﻿using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 {
-    public class SalesOrderServiceGateway : ISaleOrderServiceGateway
+    public class CashierOrderServiceGateway : ICashierOrderServiceGateway
     {
-        private static IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SalesOrderServiceGateway(IHttpClientFactory httpClientFactory,
+        public CashierOrderServiceGateway(IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
-            IAuthService authService,
             IHttpContextAccessor httpContextAccessor)
         {
             _httpClientFactory = httpClientFactory;
@@ -31,11 +24,10 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 
         private async Task<HttpClient> CreateHttpClientAsync()
         {
-            var baseAddress = _configuration["SalesApi:baseAddress"];
-            var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
+            var baseAddress = _configuration["CashierApi:baseAddress"];
+            var httpClient = _httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(baseAddress);
             var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
-
 
             if (!string.IsNullOrEmpty(token))
             {
@@ -49,49 +41,49 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             return httpClient;
         }
 
-        public async Task<Guid> CreateSaleAsync(SaleDTO saleDto)
+        public async Task<OrderDto> GetOrderByIdAsync(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PostAsJsonAsync("api/Sales", saleDto);
+            var response = await httpClient.GetAsync($"api/orders/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<OrderDto>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
+        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync("api/orders");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<IEnumerable<OrderDto>>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
+        public async Task<Guid> CreateOrderAsync(SaleDTO saleDto)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.PostAsJsonAsync("api/orders", saleDto);
             response.EnsureSuccessStatusCode();
-            var saleId = await response.Content.ReadFromJsonAsync<Guid>();
-            return saleId;
+            return await response.Content.ReadFromJsonAsync<Guid>();
         }
 
-        public async Task<SaleDTO> GetSaleByIdAsync(Guid id)
+        public async Task<bool> UpdateOrderAsync(Guid id, SaleDTO saleDto)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync($"api/Sales/{id}");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<SaleDTO>();
-            }
-            throw new HttpRequestException(response.ReasonPhrase);
-        }
-
-        public async Task<IEnumerable<SaleDTO>> GetAllSalesAsync()
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync("api/Sales");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<IEnumerable<SaleDTO>>();
-            }
-            throw new HttpRequestException(response.ReasonPhrase);
-        }
-
-        public async Task<bool> CompleteSaleAsync(Guid id)
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", id);
+            var response = await httpClient.PutAsJsonAsync($"api/orders/{id}", saleDto);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> CancelSaleAsync(Guid id)
+        public async Task<bool> DeleteOrderAsync(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/cancel", id);
+            var response = await httpClient.DeleteAsync($"api/orders/{id}");
             return response.IsSuccessStatusCode;
         }
     }
+
 }
