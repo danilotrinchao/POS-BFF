@@ -87,6 +87,17 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") // Substitua pelo domínio do seu app React
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Permitir cookies e credenciais se necessário
+        });
+});
 
 var app = builder.Build();
 
@@ -97,7 +108,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
