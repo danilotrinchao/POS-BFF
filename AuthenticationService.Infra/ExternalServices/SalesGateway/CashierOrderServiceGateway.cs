@@ -84,6 +84,20 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             var response = await httpClient.DeleteAsync($"api/orders/{id}");
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<bool> OpenCashier(decimal InitialBalance, int EmployeerId)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.DeleteAsync($"/open?InitialBalance={InitialBalance}&EmployeerId={EmployeerId}");
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> CloseCashier(Guid CashierId)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.DeleteAsync($"/close?cashierId={CashierId}");
+            return response.IsSuccessStatusCode;
+        }
     }
 
 }

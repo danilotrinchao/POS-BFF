@@ -14,6 +14,8 @@ namespace AuthenticationService.Core.Domain.Gateways.Cashier
         Task<Guid> CreateOrderAsync(SaleDTO saleDto);
         Task<bool> UpdateOrderAsync(Guid id, SaleDTO saleDto);
         Task<bool> DeleteOrderAsync(Guid id);
+        Task<bool> OpenCashier(decimal InitialBalance, int EmployeerId);
+        Task<bool> CloseCashier(Guid CashierId);
     }
 
 }

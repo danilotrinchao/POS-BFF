@@ -24,7 +24,14 @@ namespace AuthenticationService.Application.Services
         private readonly ICryptography _criptography;
         private readonly JwtSettings _jwtSettings;
         private readonly IUserRoleRepository _userRoleRepository;
-        public AuthService(IUserRepository userRepository, ITokenService tokenService, IHttpContextAccessor httpContextAccessor, ICryptography criptography, JwtSettings jwtSettings, IUserRoleRepository userRoleRepository)
+        private readonly IRoleRepository _roleRepository;
+        public AuthService(IUserRepository userRepository, 
+            ITokenService tokenService, 
+            IHttpContextAccessor httpContextAccessor, 
+            ICryptography criptography, 
+            JwtSettings jwtSettings, 
+            IUserRoleRepository userRoleRepository,
+            IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _tokenService = tokenService;
@@ -32,6 +39,7 @@ namespace AuthenticationService.Application.Services
             _criptography = criptography;
             _jwtSettings = jwtSettings;
             _userRoleRepository = userRoleRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<string> RefreshTokenAsync()
@@ -74,32 +82,35 @@ namespace AuthenticationService.Application.Services
             });
             return token;
         }
-
         public string Authenticate(string email, string password)
         {
             // Validar usuário e senha
             var user = ValidateUser(email, password);
             if (user == null) return null;
 
-            var roles = _userRoleRepository.GetByUserIdAsync(user.Id);
+            // Buscar roles do usuário
+            var roles = _userRoleRepository.GetByUserIdAsync(user.Id).Result;
+            var roleNames = new List<string>();
             if (roles != null)
             {
-                user.RoleIds = new List<Guid>();
-                foreach (var item in roles.Result)
+                foreach (var item in roles)
                 {
-                    user.RoleIds.Add(item.RoleId);
+                    // Adicione o nome da role à lista de nomes de roles do usuário
+                    var roleName = _roleRepository.GetByIdAsync(item.RoleId).Result.Name;
+                    roleNames.Add(roleName);
                 }
             }
+
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email)
             };
 
-            // Adicionar reivindicações de função para cada ID de função do usuário
-            foreach (var roleId in user.RoleIds)
+            // Adicionar reivindicações de role para cada nome de role do usuário
+            foreach (var roleName in roleNames)
             {
-                claims.Add(new Claim(ClaimTypes.Role, roleId.ToString()));
+                claims.Add(new Claim("Role", roleName)); // Use "role" ou outro nome de reivindicação que preferir
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
@@ -116,6 +127,48 @@ namespace AuthenticationService.Application.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        //public string Authenticate(string email, string password)
+        //{
+        //    // Validar usuário e senha
+        //    var user = ValidateUser(email, password);
+        //    if (user == null) return null;
+        //
+        //    var roles = _userRoleRepository.GetByUserIdAsync(user.Id);
+        //    if (roles != null)
+        //    {
+        //        user.RoleIds = new List<Guid>();
+        //        foreach (var item in roles.Result)
+        //        {
+        //            user.RoleIds.Add(item.RoleId);
+        //        }
+        //    }
+        //    var claims = new List<Claim>
+        //    {
+        //        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        //        new Claim(JwtRegisteredClaimNames.Email, user.Email)
+        //    };
+        //
+        //    // Adicionar reivindicações de função para cada ID de função do usuário
+        //    foreach (var roleId in user.RoleIds)
+        //    {
+        //        claims.Add(new Claim(ClaimTypes.Role, roleId.ToString()));
+        //    }
+        //
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+        //    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var expires = DateTime.Now.AddMinutes(_jwtSettings.DurationInMinutes);
+        //
+        //    var token = new JwtSecurityToken(
+        //        _jwtSettings.Issuer,
+        //        _jwtSettings.Audience,
+        //        claims,
+        //        expires: expires,
+        //        signingCredentials: creds
+        //    );
+        //
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
 
 
         private User ValidateUser(string email, string password)

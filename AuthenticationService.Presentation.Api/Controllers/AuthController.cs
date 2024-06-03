@@ -19,6 +19,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(string email, string password)
         {
+            
             // Chama o serviço de autenticação para fazer login
             var result = await _authService.Login(email, password);
 
