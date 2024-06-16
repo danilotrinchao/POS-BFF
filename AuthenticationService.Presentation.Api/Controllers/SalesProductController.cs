@@ -16,19 +16,35 @@ namespace AuthenticationService.Presentation.Api.Controllers
             _saleProductServiceGateway = saleProductServiceGateway;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddProduct(ProductDTO productDto)
+        [HttpPost("product")]
+        public async Task<IActionResult> AddProduct(PhysiqueProductDTO productDto)
         {
             if (ModelState.IsValid)
             {
-                var productId = await _saleProductServiceGateway.AddProductAsync(productDto);
-                if (productId != Guid.Empty)
+                var result = await _saleProductServiceGateway.AddProductAsync(productDto);
+                if (result == null)
                 {
                     return RedirectToAction("Index");
                 }
                 ModelState.AddModelError(string.Empty, "An error occurred while adding the product.");
+                return Ok(result);
             }
-            return Ok(productDto);
+            return BadRequest();
+        }
+        [HttpPost("service")]
+        public async Task<IActionResult> AddService([FromForm] VirtualProductDTO productDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _saleProductServiceGateway.AddServicetAsync(productDto);
+                if (result == null)
+                {
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError(string.Empty, "An error occurred while adding the product.");
+                return Ok(result);
+            }
+            return BadRequest();
         }
 
         [HttpPut]

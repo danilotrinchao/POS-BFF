@@ -10,7 +10,8 @@ namespace AuthenticationService.Core.Domain.Gateways.Sales
 {
     public interface ISaleProductServiceGateway
     {
-        Task<Guid> AddProductAsync(ProductDTO productDto);
+        Task<Guid> AddProductAsync(PhysiqueProductDTO productDto);
+        Task<Guid> AddServicetAsync(VirtualProductDTO productDto);
         Task<bool> UpdateProductAsync(Guid id, ProductDTO productDto);
         Task<bool> DeleteProductAsync(Guid id);
         Task<ProductDTO> GetProductAsync(Guid id);

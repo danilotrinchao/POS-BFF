@@ -8,6 +8,14 @@ namespace AuthenticationService.Core.Domain.Requests
 {
     public class VirtualProductDTO
     {
-        public double QuantidadeHoras { get; set; }
+        public VirtualProductDTO()
+        {
+            Id = Guid.NewGuid();
+        }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public double QuantityHours { get; set; }
     }
 }
