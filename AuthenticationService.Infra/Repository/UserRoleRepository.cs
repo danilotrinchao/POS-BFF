@@ -24,13 +24,13 @@ namespace AuthenticationService.Infra.Repository
             var userRole = new UserRole();
             userRole.UserId = userId;
             userRole.RoleId = roleId;
-            var query = "INSERT INTO \"userrole\" (\"userid\", \"roleId\") VALUES (@UserId, @RoleId)";
+            var query = @"INSERT INTO ""UserRole"" (""UserId"", ""RoleId"") VALUES (@UserId, @RoleId)";
             await _dbConnection.ExecuteAsync(query, userRole);
         }
 
         public async Task<List<UserRole>> GetByUserIdAsync(int userId)
         {
-            var query = "SELECT * FROM \"userrole\" WHERE \"userid\" = @UserId";
+            var query = @"SELECT * FROM ""UserRole"" WHERE ""UserId"" = @UserId";
             var result =  await _dbConnection.QueryAsync<UserRole>(query, new { UserId = userId });
             return result.ToList();
         }
