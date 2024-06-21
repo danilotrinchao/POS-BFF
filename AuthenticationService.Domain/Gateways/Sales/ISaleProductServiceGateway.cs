@@ -15,6 +15,7 @@ namespace AuthenticationService.Core.Domain.Gateways.Sales
         Task<bool> UpdateProductAsync(Guid id, ProductDTO productDto);
         Task<bool> DeleteProductAsync(Guid id);
         Task<ProductDTO> GetProductAsync(Guid id);
-        Task<IEnumerable<ProductDTO>> GetAllProductsAsync();
+        Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync();
+        Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync();
     }
 }

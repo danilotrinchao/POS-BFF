@@ -59,7 +59,7 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         public async Task<Guid> AddProductAsync(PhysiqueProductDTO productDto)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PostAsJsonAsync("api/Product/physical", productDto);
+            var response = await httpClient.PostAsJsonAsync("api/Product/product", productDto);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Guid>();
         }
@@ -96,13 +96,23 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetAllProductsAsync()
+        public async Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync()
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync("api/Product");
+            var response = await httpClient.GetAsync("api/Product/products");
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<IEnumerable<ProductDTO>>();
+                return await response.Content.ReadFromJsonAsync<IEnumerable<PhysiqueProductDTO>>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+        public async Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync()
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync("api/Product/services");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<IEnumerable<VirtualProductDTO>>();
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }

@@ -1,4 +1,5 @@
 ﻿using AuthenticationService.Application.Contracts;
+using AuthenticationService.Domain.Entities;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -22,7 +23,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
             
             // Chama o serviço de autenticação para fazer login
             var result = await _authService.Login(email, password);
-
+            
             if (!result.IsNullOrEmpty())
             {
                 return Ok(result); // Retorna o token JWT ou outro dado relevante

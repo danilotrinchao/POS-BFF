@@ -32,7 +32,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
             return BadRequest();
         }
         [HttpPost("service")]
-        public async Task<IActionResult> AddService([FromForm] VirtualProductDTO productDto)
+        public async Task<IActionResult> AddService(VirtualProductDTO productDto)
         {
             if (ModelState.IsValid)
             {
@@ -88,6 +88,12 @@ namespace AuthenticationService.Presentation.Api.Controllers
         public async Task<IActionResult> GetAllProducts()
         {
             var products = await _saleProductServiceGateway.GetAllProductsAsync();
+            return Ok(products);
+        }
+        [HttpGet("AllServices")]
+        public async Task<IActionResult> GetAllServices()
+        {
+            var products = await _saleProductServiceGateway.GetAllServicesAsync();
             return Ok(products);
         }
     }
