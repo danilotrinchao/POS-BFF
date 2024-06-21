@@ -38,20 +38,20 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             var baseAddress = _configuration["SalesApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
             httpClient.BaseAddress = new Uri(baseAddress);
-            var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
+            //var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
 
             // Incluir o token no cabeçalho de autorização das requisições HTTP
             // httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             // Adicionar cabeçalho de autorização
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
-            }
+            //if (!string.IsNullOrEmpty(token))
+            //{
+            //   //    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            //}
+            //else
+            //{
+            //    throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
+            //}
 
             return httpClient;
         }
