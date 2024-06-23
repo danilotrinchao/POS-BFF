@@ -21,6 +21,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
         {
             try
             {
+
                 var saleId = await _salesOrderServiceGateway.CreateSaleAsync(saleDto);
                 return CreatedAtAction(nameof(GetSaleById), new { id = saleId }, null);
             }
