@@ -11,8 +11,9 @@ namespace AuthenticationService.Core.Domain.Requests
     {
         public Guid Id { get; set; }
         public DateTime DtSale { get; set; }
-        public List<Guid> Produtos { get; set; }
+        public List<OrderItems> Produtos { get; set; }
         public int ClientId { get; set; }
+        public int EmployeerId { get; set; }
         public decimal PrecoTotal { get; set; }
         public decimal Desconto { get; set; }
         public decimal Credito { get; set; }

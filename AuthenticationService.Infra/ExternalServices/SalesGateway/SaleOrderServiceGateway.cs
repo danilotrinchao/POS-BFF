@@ -34,18 +34,7 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             var baseAddress = _configuration["SalesApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
             httpClient.BaseAddress = new Uri(baseAddress);
-            var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
-
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
-            }
-
+          
             return httpClient;
         }
 

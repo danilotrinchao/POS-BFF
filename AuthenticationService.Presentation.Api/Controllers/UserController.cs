@@ -32,6 +32,15 @@ namespace AuthenticationService.Presentation.Api.Controllers
             return await _userService.GetUserByIdAsync(id);
         }
 
+        [HttpGet("getByCPF")]
+        public async Task<User> GetUserByCPF(string cpf)
+        {
+            if (cpf.Length <= 0)
+                throw new ArgumentException("Invalid user id", nameof(cpf));
+
+            return await _userService.GetUserByCPF(cpf);
+        }
+
         [HttpPost]
         public async Task<int> CreateUserAsync(UserDto user)
         {

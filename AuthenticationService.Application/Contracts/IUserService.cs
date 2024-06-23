@@ -15,5 +15,6 @@ namespace AuthenticationService.Application.Contracts
         Task<int> CreateUserAsync(UserDto user);
         Task<bool> UpdateUserAsync(User user);
         Task<bool> DeleteUserAsync(int id);
+        Task<User> GetUserByCPF(string cpf);
     }
 }

@@ -34,7 +34,13 @@ namespace AuthenticationService.Infra.Repository
             return user;
 
         }
+        public async Task<User> GetByCPF(string cpf)
+        {
+            var query = @"SELECT * FROM ""User"" WHERE Cpf = @cpf";
+            var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(query, new { CPF = cpf });
+            return user;
 
+        }
         public async Task<int> InsertAsync(User entity)
         {
             var query = @"

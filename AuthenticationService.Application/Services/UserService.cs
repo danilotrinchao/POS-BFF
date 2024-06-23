@@ -33,6 +33,13 @@ namespace AuthenticationService.Application.Services
 
             return await _userRepository.GetByIdAsync(id);
         }
+        public async Task<User> GetUserByCPF(string cpf)
+        {
+            if (cpf.Length <= 0)
+                throw new ArgumentException("Invalid user id", nameof(cpf));
+
+            return await _userRepository.GetByCPF(cpf);
+        }
 
         public async Task<int> CreateUserAsync(UserDto userDto)
         {
