@@ -27,17 +27,6 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             var baseAddress = _configuration["CashierApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(baseAddress);
-            var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
-            }
-
             return httpClient;
         }
 
@@ -88,14 +77,14 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         public async Task<bool> OpenCashier(decimal InitialBalance, int EmployeerId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"/open?InitialBalance={InitialBalance}&EmployeerId={EmployeerId}");
+            var response = await httpClient.DeleteAsync($"api/open?InitialBalance={InitialBalance}&EmployeerId={EmployeerId}");
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> CloseCashier(Guid CashierId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"/close?cashierId={CashierId}");
+            var response = await httpClient.DeleteAsync($"api/close?cashierId={CashierId}");
             return response.IsSuccessStatusCode;
         }
     }
