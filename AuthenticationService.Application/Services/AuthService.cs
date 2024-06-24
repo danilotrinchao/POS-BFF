@@ -104,7 +104,8 @@ namespace AuthenticationService.Application.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email)
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("EmployeerId", user.Id.ToString()) // Adiciona o EmployeerId como uma claim
             };
 
             // Adicionar reivindicações de role para cada nome de role do usuário

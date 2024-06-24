@@ -19,7 +19,7 @@ namespace AuthenticationService.Domain.Entities
         public string CPF { get; set; }
         public  string Phone { get; set; }
         public EUserType UserType { get; set; }
-        public Address Address { get; set; }
+        public Address? Address { get; set; }
         public string PasswordHash { get; set; }
         public List<Guid> RoleIds { get; set; }
         public bool Inative { get; set; }    

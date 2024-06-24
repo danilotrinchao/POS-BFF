@@ -70,6 +70,7 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Configuração do HttpClient para ISaleServiceGateway
+builder.Services.AddScoped<ISalesServiceUsageGateway, SalesServiceUsageGateway>();
 builder.Services.AddTransient<ISaleClientServiceGateway, SalesClientServiceGateway>();
 builder.Services.AddTransient<ISaleProductServiceGateway, SaleProductServiceGateway>();
 builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway>();
