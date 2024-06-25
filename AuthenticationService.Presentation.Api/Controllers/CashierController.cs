@@ -114,7 +114,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
         }
 
         [HttpPost("open")]
-        public async Task<ActionResult> OpenCashier([FromBody] decimal initialBalance, int employeerId)
+        public async Task<ActionResult> OpenCashier(decimal initialBalance, int employeerId)
         {
             try
             {

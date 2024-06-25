@@ -77,7 +77,10 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         public async Task<bool> OpenCashier(decimal InitialBalance, int EmployeerId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/open?InitialBalance={InitialBalance}&EmployeerId={EmployeerId}");
+            var cashier = new CashierDto();
+            cashier.EmployeerId = EmployeerId;
+            cashier.InitialBalance = InitialBalance;
+            var response = await httpClient.PostAsJsonAsync("/open", cashier);
             return response.IsSuccessStatusCode;
         }
 
