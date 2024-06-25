@@ -59,7 +59,7 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         public async Task<Guid> AddProductAsync(PhysiqueProductDTO productDto)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PostAsJsonAsync("api/Product/product", productDto);
+            var response = await httpClient.PostAsJsonAsync("api/Product/physical", productDto);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Guid>();
         }
