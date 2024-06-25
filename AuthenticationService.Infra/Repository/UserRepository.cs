@@ -63,8 +63,6 @@ namespace AuthenticationService.Infra.Repository
             });
         }
 
-
-
         public async Task<bool> UpdateAsync(User entity)
         {
             var query = @"
@@ -101,6 +99,32 @@ namespace AuthenticationService.Infra.Repository
         {
             var query = "INSERT INTO UserRole (UserId, RoleId) VALUES (@UserId, @RoleId)";
             await _dbConnection.ExecuteAsync(query, userRole);
+        }
+
+        public async Task CreateUserClientAsync(string username, string password, int availableTime)
+        {
+            string sql = @"
+                            INSERT INTO public.""UserClient""
+                            (
+                                ""Username"", 
+                                ""Password"", 
+                                ""AvailableTime""
+                            )
+                            VALUES
+                            (@Username, @Password, @AvailableTime);";
+
+            await _dbConnection.ExecuteAsync(sql, new { Username = username, Password = password, AvailableTime = availableTime });
+
+        }
+
+        public async Task UpdateUserClientAvailableTimeAsync(int userId, int quantityHours)
+        {
+            string sql = @"
+                            UPDATE public.""UserClient""
+                            SET ""AvailableTime"" = ""AvailableTime"" + @QuantityHours
+                            WHERE ""ID"" = @UserId;";
+
+            await _dbConnection.ExecuteAsync(sql, new { UserId = userId, QuantityHours = quantityHours });
         }
     }
 }

@@ -41,9 +41,44 @@ namespace AuthenticationService.Application.Services
             return await _userRepository.GetByCPF(cpf);
         }
 
+        //public async Task<int> CreateUserAsync(UserDto userDto)
+        //{
+        //    
+        //    if (userDto == null)
+        //        throw new ArgumentNullException(nameof(userDto));
+        //
+        //    var user = new User
+        //    {
+        //        Nome = userDto.Nome,
+        //        Sobrenome = userDto.Sobrenome,
+        //        Email = userDto.Email,
+        //        Phone = userDto.Phone,
+        //        CPF = userDto.CPF,
+        //        Address = userDto.Address,
+        //        DtNascimento = userDto.DtNascimento,
+        //        Inative = true,
+        //        UserType = userDto.UserType,
+        //        PasswordHash = _criptography.CryptographyPassword(userDto.Password),
+        //        RoleIds = userDto.RoleIds,
+        //    };
+        //    
+        //    
+        //    // Primeiro, insira o endereço no banco de dados
+        //    int addressId = await _addressRepository.InsertAsync(user.Address);
+        //
+        //    // Em seguida, associe o ID do endereço ao usuário
+        //    user.Address.Id = addressId;
+        //
+        //    // Finalmente, insira o usuário no banco de dados
+        //    var result = await _userRepository.InsertAsync(user);
+        //    foreach (var item in user.RoleIds)
+        //    {
+        //        await _userRoleRepository.InsertAsync(result, item);
+        //    }
+        //    return result;
+        //}
         public async Task<int> CreateUserAsync(UserDto userDto)
         {
-            
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
 
@@ -56,13 +91,12 @@ namespace AuthenticationService.Application.Services
                 CPF = userDto.CPF,
                 Address = userDto.Address,
                 DtNascimento = userDto.DtNascimento,
-                Inative = true,
+                Inative = false,
                 UserType = userDto.UserType,
                 PasswordHash = _criptography.CryptographyPassword(userDto.Password),
                 RoleIds = userDto.RoleIds,
             };
-            
-            
+
             // Primeiro, insira o endereço no banco de dados
             int addressId = await _addressRepository.InsertAsync(user.Address);
 
@@ -71,13 +105,20 @@ namespace AuthenticationService.Application.Services
 
             // Finalmente, insira o usuário no banco de dados
             var result = await _userRepository.InsertAsync(user);
+
+            if (result > 0)
+            {
+                // Cria um usuário na tabela UserClient somente se o usuário foi criado com sucesso
+                await _userRepository.CreateUserClientAsync(userDto.CPF, userDto.Password, 0);
+            }
+
             foreach (var item in user.RoleIds)
             {
                 await _userRoleRepository.InsertAsync(result, item);
             }
+
             return result;
         }
-
         public async Task<bool> UpdateUserAsync(User user)
         {
             if (user == null)

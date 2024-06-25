@@ -1,6 +1,8 @@
 ﻿using AuthenticationService.Application.Contracts;
+using AuthenticationService.Core.Domain.Enums;
 using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Requests;
+using AuthenticationService.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -18,15 +20,21 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         private static IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISaleProductServiceGateway _saleProductServiceGateway;
+        private readonly IUserRepository _userRepository;
 
         public SalesOrderServiceGateway(IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IAuthService authService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ISaleProductServiceGateway saleProductServiceGateway,
+            IUserRepository userRepository)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _saleProductServiceGateway = saleProductServiceGateway;
+            _userRepository = userRepository;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
@@ -73,6 +81,18 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         {
             var httpClient = await CreateHttpClientAsync();
             var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", id);
+            if (response.IsSuccessStatusCode)
+            {
+                var order = await GetSaleByIdAsync(id);
+                
+                foreach (var item in order.Produtos)
+                {
+                    var service = await _saleProductServiceGateway.GetVirtualProductAsync(item.ProductId);
+                    if (item.ProductType == EProductType.VirtualProduct && service.Name.Equals("Pc Gamer", StringComparison.OrdinalIgnoreCase))
+                        await _userRepository.UpdateUserClientAvailableTimeAsync(order.ClientId, item.Quantity);
+                        
+                }
+            }
             return response.IsSuccessStatusCode;
         }
 

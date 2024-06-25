@@ -17,5 +17,7 @@ namespace AuthenticationService.Core.Domain.Gateways.Sales
         Task<ProductDTO> GetProductAsync(Guid id);
         Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync();
         Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync();
+        Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid);
+        Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid);
     }
 }

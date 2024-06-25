@@ -116,6 +116,29 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
+
+        public async Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync($"api/Sales/GetVirtualProduct/{serviceid}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<VirtualProductDTO>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
+        public async Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync($"api/Sales/GetPhysiqueProduct/{productid}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<PhysiqueProductDTO>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
     }
 
 }
