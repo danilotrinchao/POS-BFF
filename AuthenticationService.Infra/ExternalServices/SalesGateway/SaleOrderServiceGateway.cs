@@ -41,6 +41,7 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         {
             var baseAddress = _configuration["SalesApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
+            
             httpClient.BaseAddress = new Uri(baseAddress);
           
             return httpClient;
@@ -77,10 +78,10 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<bool> CompleteSaleAsync(Guid id)
+        public async Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", id);
+            var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", saleDTO);
             if (response.IsSuccessStatusCode)
             {
                 var order = await GetSaleByIdAsync(id);

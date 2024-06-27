@@ -64,11 +64,11 @@ namespace AuthenticationService.Presentation.Api.Controllers
         }
 
         [HttpPut("{id}/complete")]
-        public async Task<IActionResult> CompleteSale(Guid id)
+        public async Task<IActionResult> CompleteSale(Guid id, [FromBody] SaleDTO saleDTO)
         {
             try
             {
-                var result = await _salesOrderServiceGateway.CompleteSaleAsync(id);
+                var result = await _salesOrderServiceGateway.CompleteSaleAsync(id, saleDTO);
                 if (!result)
                 {
                     return NotFound();
