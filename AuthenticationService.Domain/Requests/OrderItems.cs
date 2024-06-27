@@ -13,5 +13,6 @@ namespace AuthenticationService.Core.Domain.Requests
         public int Quantity { get; set; }
         public Guid OrderId { get; set; }
         public EProductType ProductType { get; set; }
+        public string Name { get; set; }
     }
 }
