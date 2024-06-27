@@ -85,13 +85,24 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<ProductDTO> GetProductAsync(Guid id)
+        public async Task<PhysiqueProductDTO> GetProductById(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync($"api/Product/{id}");
+            var response = await httpClient.GetAsync($"api/Product/PhysiqueProduct/{id}");
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<ProductDTO>();
+                return await response.Content.ReadFromJsonAsync<PhysiqueProductDTO>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
+        public async Task<VirtualProductDTO> GetServiceById(Guid id)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync($"api/Product/VirtualProduct/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<VirtualProductDTO>();
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }

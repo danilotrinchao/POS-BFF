@@ -14,10 +14,11 @@ namespace AuthenticationService.Core.Domain.Gateways.Sales
         Task<Guid> AddServicetAsync(VirtualProductDTO productDto);
         Task<bool> UpdateProductAsync(Guid id, ProductDTO productDto);
         Task<bool> DeleteProductAsync(Guid id);
-        Task<ProductDTO> GetProductAsync(Guid id);
         Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync();
         Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync();
         Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid);
         Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid);
+        Task<VirtualProductDTO> GetServiceById(Guid id);
+        Task<PhysiqueProductDTO> GetProductById(Guid id);
     }
 }

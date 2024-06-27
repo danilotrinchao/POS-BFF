@@ -73,10 +73,20 @@ namespace AuthenticationService.Presentation.Api.Controllers
             return NotFound();
         }
 
-        [HttpGet]
+        [HttpGet("GetProductById")]
         public async Task<IActionResult> GetProduct(Guid id )
         {
-            var product = await _saleProductServiceGateway.GetProductAsync(id);
+            var product = await _saleProductServiceGateway.GetProductById(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return Ok(product);
+        }
+        [HttpGet("GetServiceById")]
+        public async Task<IActionResult> GetService(Guid id)
+        {
+            var product = await _saleProductServiceGateway.GetServiceById(id);
             if (product == null)
             {
                 return NotFound();

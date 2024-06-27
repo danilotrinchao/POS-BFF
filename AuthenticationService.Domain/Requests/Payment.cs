@@ -10,7 +10,7 @@ namespace AuthenticationService.Core.Domain.Requests
     {
         public int Id { get; set; }
         public decimal Value { get; set; }
-        public int PaymentMethodId { get; set; }
-        public PaymentMethod PaymentMethod { get; set; }
+        public string PaymentMethod { get; set; }
+        public Guid OrderId { get; set; }
     }
 }
