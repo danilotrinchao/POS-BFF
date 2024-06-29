@@ -76,9 +76,9 @@ builder.Services.AddTransient<ISaleProductServiceGateway, SaleProductServiceGate
 builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway>();
 builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
 builder.Services.AddHttpClient("SalesApi",
-      c => c.BaseAddress = new Uri("https://localhost:7250/"));
+      c => c.BaseAddress = new Uri("http://localhost:7250/"));
 builder.Services.AddHttpClient("CashierApi",
-      c => c.BaseAddress = new Uri("https://localhost:7209/"));
+      c => c.BaseAddress = new Uri("http://localhost:7209/"));
 
 
 builder.Services.AddAuthorization(options =>
