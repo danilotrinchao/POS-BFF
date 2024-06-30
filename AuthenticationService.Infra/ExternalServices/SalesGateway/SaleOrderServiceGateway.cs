@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -66,7 +67,16 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
-
+        public async Task<List<OrderItems>> GetOrderItemsByOrder(Guid orderid)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync($"api/Sales/{orderid}/items");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<OrderItems>>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
         public async Task<IEnumerable<SaleDTO>> GetAllSalesAsync()
         {
             var httpClient = await CreateHttpClientAsync();
@@ -81,16 +91,15 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         public async Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", saleDTO);
+            var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", saleDTO); 
             if (response.IsSuccessStatusCode)
             {
-                var order = await GetSaleByIdAsync(id);
+                var items = await GetOrderItemsByOrder(id);
                 
-                foreach (var item in order.Produtos)
+                foreach (var item in items)
                 {
-                    var service = await _saleProductServiceGateway.GetVirtualProductAsync(item.ProductId);
-                    if (item.ProductType == EProductType.VirtualProduct && service.Name.Equals("Pc Gamer", StringComparison.OrdinalIgnoreCase))
-                        await _userRepository.UpdateUserClientAvailableTimeAsync(order.ClientId, item.Quantity);
+                    if (item.ProductType == EProductType.VirtualProduct)
+                        await _userRepository.UpdateUserClientAvailableTimeAsync(saleDTO.ClientId, item.Quantity);
                         
                 }
             }
