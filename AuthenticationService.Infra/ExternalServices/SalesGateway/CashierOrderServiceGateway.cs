@@ -30,59 +30,28 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             return httpClient;
         }
 
-        public async Task<OrderDto> GetOrderByIdAsync(Guid id)
+        public async Task<Guid> OpenCashier(decimal InitialBalance, int EmployeerId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync($"api/orders/{id}");
-            if (response.IsSuccessStatusCode)
+            var cashier = new CashierDto
             {
-                return await response.Content.ReadFromJsonAsync<OrderDto>();
-            }
-            throw new HttpRequestException(response.ReasonPhrase);
-        }
+                EmployeerId = EmployeerId,
+                InitialBalance = InitialBalance
+            };
 
-        public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync()
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync("api/orders");
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<IEnumerable<OrderDto>>();
-            }
-            throw new HttpRequestException(response.ReasonPhrase);
-        }
-
-        public async Task<Guid> CreateOrderAsync(SaleDTO saleDto)
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PostAsJsonAsync("api/orders", saleDto);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Guid>();
-        }
-
-        public async Task<bool> UpdateOrderAsync(Guid id, SaleDTO saleDto)
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/orders/{id}", saleDto);
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> DeleteOrderAsync(Guid id)
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/orders/{id}");
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> OpenCashier(decimal InitialBalance, int EmployeerId)
-        {
-            var httpClient = await CreateHttpClientAsync();
-            var cashier = new CashierDto();
-            cashier.EmployeerId = EmployeerId;
-            cashier.InitialBalance = InitialBalance;
             var response = await httpClient.PostAsJsonAsync("/open", cashier);
-            return response.IsSuccessStatusCode;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                return Guid.Parse(responseString);
+            }
+            else
+            {
+                throw new Exception($"Failed to open cashier. Status code: {response.StatusCode}, Reason: {response.ReasonPhrase}");
+            }
         }
+
 
         public async Task<bool> CloseCashier(Guid CashierId)
         {

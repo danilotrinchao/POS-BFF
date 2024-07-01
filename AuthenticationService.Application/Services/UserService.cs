@@ -109,7 +109,7 @@ namespace AuthenticationService.Application.Services
             if (result > 0)
             {
                 // Cria um usuário na tabela UserClient somente se o usuário foi criado com sucesso
-                await _userRepository.CreateUserClientAsync(userDto.CPF, userDto.Password, 0);
+                await _userRepository.CreateUserClientAsync(userDto.CPF, userDto.Password, 0, result);
             }
 
             foreach (var item in user.RoleIds)
