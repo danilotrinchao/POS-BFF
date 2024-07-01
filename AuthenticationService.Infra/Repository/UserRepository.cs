@@ -2,6 +2,7 @@
 using AuthenticationService.Domain.Entities;
 using AuthenticationService.Domain.Repositories;
 using Dapper;
+using Serilog;
 using System.Data;
 
 namespace AuthenticationService.Infra.Repository
@@ -44,9 +45,9 @@ namespace AuthenticationService.Infra.Repository
         public async Task<int> InsertAsync(User entity)
         {
             var query = @"
-        INSERT INTO ""User"" (Nome, Sobrenome, DtNascimento, Email, CPF, Phone, UserType, AddressId, ""PasswordHash"", Inative)
-        VALUES (@Nome, @Sobrenome, @DtNascimento, @Email, @CPF, @Phone, @UserType, @AddressId, @PasswordHash,@Inative)
-        RETURNING Id";
+                        INSERT INTO ""User"" (Nome, Sobrenome, DtNascimento, Email, CPF, Phone, UserType, AddressId, ""PasswordHash"", Inative)
+                        VALUES (@Nome, @Sobrenome, @DtNascimento, @Email, @CPF, @Phone, @UserType, @AddressId, @PasswordHash,@Inative)
+                        RETURNING Id";
 
             return await _dbConnection.ExecuteScalarAsync<int>(query, new
             {
@@ -101,19 +102,20 @@ namespace AuthenticationService.Infra.Repository
             await _dbConnection.ExecuteAsync(query, userRole);
         }
 
-        public async Task CreateUserClientAsync(string username, string password, int availableTime)
+        public async Task CreateUserClientAsync(string username, string password, int availableTime, int userId)
         {
             string sql = @"
                             INSERT INTO public.""UserClient""
                             (
                                 ""Username"", 
                                 ""Password"", 
-                                ""AvailableTime""
+                                ""AvailableTime"",
+                                ""UserId""
                             )
                             VALUES
-                            (@Username, @Password, @AvailableTime);";
+                            (@Username, @Password, @AvailableTime, @UserId);";
 
-            await _dbConnection.ExecuteAsync(sql, new { Username = username, Password = password, AvailableTime = availableTime });
+            await _dbConnection.ExecuteAsync(sql, new { Username = username, Password = password, AvailableTime = availableTime, UserId = userId });
 
         }
 
@@ -122,9 +124,26 @@ namespace AuthenticationService.Infra.Repository
             string sql = @"
                             UPDATE public.""UserClient""
                             SET ""AvailableTime"" = ""AvailableTime"" + @QuantityHours
-                            WHERE ""ID"" = @UserId;";
+                            WHERE ""UserId"" = @UserId;";
 
-            await _dbConnection.ExecuteAsync(sql, new { UserId = userId, QuantityHours = quantityHours });
+            if (_dbConnection.State != ConnectionState.Open)
+            {
+                _dbConnection.Open();
+            }
+
+            try
+            {
+                Log.Information("Atualizando o tempo disponível do usuário {UserId} em {QuantityHours} horas.", userId, quantityHours);
+                int rowsAffected = await _dbConnection.ExecuteAsync(sql, new { UserId = userId, QuantityHours = quantityHours });
+                Log.Information("Atualização concluída. Linhas afetadas: {RowsAffected}", rowsAffected);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Erro ao atualizar o tempo disponível do usuário {UserId}: {ExceptionMessage}", userId, ex.Message);
+                throw;
+            }
         }
+
+
     }
 }
