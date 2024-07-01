@@ -51,7 +51,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<bool> UpdateUserAsync(User user)
+        public async Task<bool> UpdateUserAsync(UserDto user)
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));

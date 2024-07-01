@@ -119,12 +119,31 @@ namespace AuthenticationService.Application.Services
 
             return result;
         }
-        public async Task<bool> UpdateUserAsync(User user)
+        public async Task<bool> UpdateUserAsync(UserDto userDto)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
+            if (userDto == null)
+                throw new ArgumentNullException(nameof(userDto));
 
-            return await _userRepository.UpdateAsync(user);
+            var user = new User
+            {
+                Nome = userDto.Nome,
+                Sobrenome = userDto.Sobrenome,
+                Email = userDto.Email,
+                Phone = userDto.Phone,
+                CPF = userDto.CPF,
+                Address = userDto.Address,
+                DtNascimento = userDto.DtNascimento,
+                Inative = false,
+                UserType = userDto.UserType,
+                PasswordHash = _criptography.CryptographyPassword(userDto.Password),
+                RoleIds = userDto.RoleIds,
+            };
+
+            var result =  await _userRepository.UpdateAsync(user);
+
+            if (result)
+                await _userRepository.UpdateUserClientCredentialsAsync(user.Id, user.CPF, user.PasswordHash);
+            return result;
         }
 
         public async Task<bool> DeleteUserAsync(int id)

@@ -67,9 +67,18 @@ namespace AuthenticationService.Infra.Repository
         public async Task<bool> UpdateAsync(User entity)
         {
             var query = @"
-                        UPDATE ""User"" SET Nome = @Nome, Sobrenome = @Sobrenome, DtNascimento = @DtNascimento,
-                        Email = @Email, CPF = @CPF, Phone = @Phone, UserType = @UserType, AddressId = @AddressId,
-                        PasswordHash = @PasswordHash, Inative = @Inative WHERE Id = @Id";
+                        UPDATE public.""User""
+                        SET ""Nome"" = @Nome,
+                            ""Sobrenome"" = @Sobrenome,
+                            ""DtNascimento"" = @DtNascimento,
+                            ""Email"" = @Email,
+                            ""CPF"" = @CPF,
+                            ""Phone"" = @Phone,
+                            ""UserType"" = @UserType,
+                            ""AddressId"" = @AddressId,
+                            ""PasswordHash"" = @PasswordHash,
+                            ""Inative"" = @Inative
+                        WHERE ""Id"" = @Id";
 
             var rowsAffected = await _dbConnection.ExecuteAsync(query, new
             {
@@ -85,8 +94,10 @@ namespace AuthenticationService.Infra.Repository
                 entity.Inative,
                 entity.Id
             });
+
             return rowsAffected > 0;
         }
+
 
 
         public async Task<bool> DeleteAsync(int id)
@@ -143,6 +154,36 @@ namespace AuthenticationService.Infra.Repository
                 throw;
             }
         }
+
+        public async Task UpdateUserClientCredentialsAsync(int userId, string username, string password)
+        {
+            string sql = @"
+                           UPDATE public.""UserClient""
+                           SET ""Username"" = @Username,
+                               ""Password"" = @Password
+                           WHERE ""UserId"" = @UserId;";
+
+            if (_dbConnection.State != ConnectionState.Open)
+            {
+                 _dbConnection.Open();
+            }
+
+            try
+            {
+                Log.Information("Atualizando credenciais do usuário {UserId}. Novo Username: {Username}", userId, username);
+
+                // Execute a query de atualização
+                int rowsAffected = await _dbConnection.ExecuteAsync(sql, new { UserId = userId, Username = username, Password = password });
+
+                Log.Information("Atualização concluída. Linhas afetadas: {RowsAffected}", rowsAffected);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Erro ao atualizar as credenciais do usuário {UserId}: {ExceptionMessage}", userId, ex.Message);
+                throw;
+            }
+        }
+
 
 
     }
