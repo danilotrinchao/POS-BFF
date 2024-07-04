@@ -1,4 +1,5 @@
-﻿using AuthenticationService.Core.Domain.Requests;
+﻿using AuthenticationService.Core.Domain.Enums;
+using AuthenticationService.Core.Domain.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ namespace AuthenticationService.Core.Domain.Gateways.Sales
         Task<IEnumerable<SaleDTO>> GetAllSalesAsync();
         Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO);
         Task<bool> CancelSaleAsync(Guid id);
+        Task<Dictionary<EPaymentType, decimal>> GetDailyTotals();
     }
 }

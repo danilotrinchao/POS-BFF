@@ -112,5 +112,16 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/cancel", id);
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<Dictionary<EPaymentType, decimal>> GetDailyTotals()
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync("api/Sales/daily-totals");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Dictionary<EPaymentType, decimal>>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
     }
 }

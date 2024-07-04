@@ -1,4 +1,5 @@
-﻿using AuthenticationService.Core.Domain.Requests;
+﻿using AuthenticationService.Core.Domain.Enums;
+using AuthenticationService.Core.Domain.Requests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace AuthenticationService.Core.Domain.Gateways.Cashier
     public interface ICashierOrderServiceGateway
     {
         Task<Guid> OpenCashier(decimal InitialBalance, int EmployeerId);
-        Task<bool> CloseCashier(Guid CashierId);
+        Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals);
     }
 
 }

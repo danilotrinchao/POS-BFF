@@ -1,9 +1,12 @@
-﻿using AuthenticationService.Core.Domain.Gateways.Cashier;
+﻿using AuthenticationService.Core.Domain.Enums;
+using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 {
@@ -53,12 +56,15 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         }
 
 
-        public async Task<bool> CloseCashier(Guid CashierId)
+        public async Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals)
         {
+            
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/close?cashierId={CashierId}");
+            var content = new StringContent(JsonConvert.SerializeObject(new { employeerId, totals }), Encoding.UTF8, "application/json");
+            var response = await httpClient.PutAsync("api/close", content);
             return response.IsSuccessStatusCode;
         }
+
     }
 
 }
