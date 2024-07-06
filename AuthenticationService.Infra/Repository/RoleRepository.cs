@@ -30,7 +30,7 @@ namespace AuthenticationService.Infra.Repository
         }
         public async Task<Role> GetByGroupAsync(int group)
         {
-            var query = @"SELECT * FROM ""Role"" WHERE ""group"" = @Group";
+            var query = @"SELECT * FROM ""Role"" WHERE ""Group"" = @Group";
             return await _dbConnection.QueryFirstOrDefaultAsync<Role>(query, new { Group = group });
         }
         public async Task<Guid> InsertAsync(Role entity)

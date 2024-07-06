@@ -114,10 +114,8 @@ namespace AuthenticationService.Application.Services
             }
             var role = await _roleRepository.GetByGroupAsync((int)user.UserType);
             user.RoleIds.Add(role.Id);
-            foreach (var item in user.RoleIds)
-            {
-                await _userRoleRepository.InsertAsync(result, item);
-            }
+            await _userRoleRepository.InsertAsync(result, role.Id);
+
 
             return result;
         }

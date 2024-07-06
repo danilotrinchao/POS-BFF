@@ -3,6 +3,7 @@ using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -44,10 +45,12 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 
             var response = await httpClient.PostAsJsonAsync("/open", cashier);
 
-            if (response.IsSuccessStatusCode)
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString = responseString.Replace("\\", "").Trim('"');
+            if (!responseString.IsNullOrEmpty())
             {
-                var responseString = await response.Content.ReadAsStringAsync();
-                return Guid.Parse(responseString);
+                var result = Guid.Parse(responseString);
+                return result;
             }
             else
             {
