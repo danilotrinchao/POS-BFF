@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuthenticationService.Core.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,6 @@ namespace AuthenticationService.Core.Domain.Requests
         public decimal Value { get; set; }
         public string PaymentMethod { get; set; }
         public Guid OrderId { get; set; }
+        public EPaymentType PaymentType { get; set; }
     }
 }

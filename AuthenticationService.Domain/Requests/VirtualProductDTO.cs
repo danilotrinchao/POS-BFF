@@ -17,5 +17,6 @@ namespace AuthenticationService.Core.Domain.Requests
         public string Description { get; set; }
         public decimal Price { get; set; }
         public double QuantityHours { get; set; }
+        public int QuantityEquipament { get; set; }
     }
 }

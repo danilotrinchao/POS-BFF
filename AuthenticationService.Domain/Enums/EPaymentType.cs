@@ -9,7 +9,7 @@ namespace AuthenticationService.Core.Domain.Enums
     public enum EPaymentType
     {
         pix = 1,
-        dinheiro = 2,
+        cedulas = 2,
         credito = 3,
         debito = 4,
     }
