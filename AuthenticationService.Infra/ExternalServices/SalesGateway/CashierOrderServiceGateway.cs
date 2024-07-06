@@ -58,12 +58,19 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 
         public async Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals)
         {
-            
             var httpClient = await CreateHttpClientAsync();
-            var content = new StringContent(JsonConvert.SerializeObject(new { employeerId, totals }), Encoding.UTF8, "application/json");
-            var response = await httpClient.PutAsync("api/close", content);
+            var url = $"/close?employeerId={employeerId}";
+
+            // Serializar o objeto totals como JSON
+            var jsonContent = JsonConvert.SerializeObject(totals);
+            var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+            // Send the PUT request with the JSON content
+            var response = await httpClient.PutAsync(url, content);
+
             return response.IsSuccessStatusCode;
         }
+
 
     }
 
