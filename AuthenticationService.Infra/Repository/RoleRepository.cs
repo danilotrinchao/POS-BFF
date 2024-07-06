@@ -28,7 +28,11 @@ namespace AuthenticationService.Infra.Repository
             var query = "SELECT * FROM \"Role\" WHERE \"Id\" = @Id";
             return await _dbConnection.QueryFirstOrDefaultAsync<Role>(query, new { Id = id });
         }
-
+        public async Task<Role> GetByGroupAsync(int group)
+        {
+            var query = @"SELECT * FROM ""Role"" WHERE ""group"" = @Group";
+            return await _dbConnection.QueryFirstOrDefaultAsync<Role>(query, new { Group = group });
+        }
         public async Task<Guid> InsertAsync(Role entity)
         {
             var query = @"INSERT INTO ""Role"" (""Id"", ""Name"", ""Description"", ""Group"", ""Inative"") VALUES (@Id, @Name, @Description, @Group, @Inative)";
