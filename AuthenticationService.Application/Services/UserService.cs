@@ -124,7 +124,8 @@ namespace AuthenticationService.Application.Services
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
 
-            var user = new User
+            var user = await _userRepository.GetByIdAsync(userDto.Id);
+            user = new User
             {
                 Nome = userDto.Nome,
                 Sobrenome = userDto.Sobrenome,
