@@ -1,5 +1,6 @@
 ﻿using AuthenticationService.Application.Contracts;
 using AuthenticationService.Core.Domain.Enums;
+using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Requests;
 using AuthenticationService.Domain.Repositories;
@@ -24,18 +25,22 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         private readonly ISaleProductServiceGateway _saleProductServiceGateway;
         private readonly IUserRepository _userRepository;
 
+        private readonly ICashierOrderServiceGateway _cashierOrderServiceGateway;
+
         public SalesOrderServiceGateway(IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor,
             ISaleProductServiceGateway saleProductServiceGateway,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            ICashierOrderServiceGateway cashierOrderServiceGateway)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
             _saleProductServiceGateway = saleProductServiceGateway;
             _userRepository = userRepository;
+            _cashierOrderServiceGateway = cashierOrderServiceGateway;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
