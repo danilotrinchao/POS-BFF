@@ -82,7 +82,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
             var success = await _saleProductServiceGateway.DeleteProductAsync(id);
             if (success)
             {
-                return RedirectToAction("Index");
+                return Ok(success);
             }
             return NotFound();
         }
@@ -92,7 +92,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
             var success = await _saleProductServiceGateway.DeleteServiceAsync(id);
             if (success)
             {
-                return RedirectToAction("Index");
+                return Ok(success);
             }
             return NotFound();
         }

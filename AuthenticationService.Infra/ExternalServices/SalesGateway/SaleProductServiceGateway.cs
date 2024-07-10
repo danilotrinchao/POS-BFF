@@ -74,26 +74,26 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         public async Task<bool> UpdateProductAsync(Guid id, PhysiqueProductDTO productDto)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updatephysical", productDto);
+            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateProduct", productDto);
             return response.IsSuccessStatusCode;
         }
         public async Task<bool> UpdateServiceAsync(Guid id, VirtualProductDTO serviceDto)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateservice", serviceDto);
+            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateService", serviceDto);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteProductAsync(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/deleteProduct/{id}");
+            var response = await httpClient.DeleteAsync($"api/Product/deleteProduct/{id}");
             return response.IsSuccessStatusCode;
         }
         public async Task<bool> DeleteServiceAsync(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/deleteService/{id}");
+            var response = await httpClient.DeleteAsync($"api/Product/deleteService/{id}");
             return response.IsSuccessStatusCode;
         }
 
