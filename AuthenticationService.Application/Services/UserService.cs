@@ -12,13 +12,14 @@ namespace AuthenticationService.Application.Services
         private readonly IAddressRepository _addressRepository;
         private readonly ICryptography _criptography;
         private readonly IUserRoleRepository _userRoleRepository;
-
-        public UserService(IUserRepository userRepository, IAddressRepository addressRepository, ICryptography criptography, IUserRoleRepository userRoleRepository)
+        private readonly IRoleRepository _roleRepository;
+        public UserService(IUserRepository userRepository, IAddressRepository addressRepository, ICryptography criptography, IUserRoleRepository userRoleRepository, IRoleRepository roleRepository)
         {
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _addressRepository = addressRepository;
             _criptography = criptography;
             _userRoleRepository = userRoleRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
@@ -94,9 +95,9 @@ namespace AuthenticationService.Application.Services
                 Inative = false,
                 UserType = userDto.UserType,
                 PasswordHash = _criptography.CryptographyPassword(userDto.Password),
-                RoleIds = userDto.RoleIds,
+                RoleIds = new List<Guid>(),
             };
-
+            user.RoleIds = userDto.RoleIds;
             // Primeiro, insira o endereço no banco de dados
             int addressId = await _addressRepository.InsertAsync(user.Address);
 
@@ -111,20 +112,39 @@ namespace AuthenticationService.Application.Services
                 // Cria um usuário na tabela UserClient somente se o usuário foi criado com sucesso
                 await _userRepository.CreateUserClientAsync(userDto.CPF, userDto.Password, 0, result);
             }
+            var role = await _roleRepository.GetByGroupAsync((int)user.UserType);
+            user.RoleIds.Add(role.Id);
+            await _userRoleRepository.InsertAsync(result, role.Id);
 
-            foreach (var item in user.RoleIds)
-            {
-                await _userRoleRepository.InsertAsync(result, item);
-            }
 
             return result;
         }
-        public async Task<bool> UpdateUserAsync(User user)
+        public async Task<bool> UpdateUserAsync(UserDto userDto)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
+            if (userDto == null)
+                throw new ArgumentNullException(nameof(userDto));
 
-            return await _userRepository.UpdateAsync(user);
+            var user = await _userRepository.GetByIdAsync(userDto.Id);
+            user = new User
+            {
+                Nome = userDto.Nome,
+                Sobrenome = userDto.Sobrenome,
+                Email = userDto.Email,
+                Phone = userDto.Phone,
+                CPF = userDto.CPF,
+                Address = userDto.Address,
+                DtNascimento = userDto.DtNascimento,
+                Inative = false,
+                UserType = userDto.UserType,
+                PasswordHash = _criptography.CryptographyPassword(userDto.Password),
+                RoleIds = userDto.RoleIds,
+            };
+
+            var result =  await _userRepository.UpdateAsync(user);
+
+            if (result)
+                await _userRepository.UpdateUserClientCredentialsAsync(user.Id, user.CPF, user.PasswordHash);
+            return result;
         }
 
         public async Task<bool> DeleteUserAsync(int id)

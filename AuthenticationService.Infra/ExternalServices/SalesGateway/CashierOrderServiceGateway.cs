@@ -1,9 +1,13 @@
-﻿using AuthenticationService.Core.Domain.Gateways.Cashier;
+﻿using AuthenticationService.Core.Domain.Enums;
+using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 
 namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 {
@@ -41,10 +45,12 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 
             var response = await httpClient.PostAsJsonAsync("/open", cashier);
 
-            if (response.IsSuccessStatusCode)
+            var responseString = await response.Content.ReadAsStringAsync();
+            responseString = responseString.Replace("\\", "").Trim('"');
+            if (!responseString.IsNullOrEmpty())
             {
-                var responseString = await response.Content.ReadAsStringAsync();
-                return Guid.Parse(responseString);
+                var result = Guid.Parse(responseString);
+                return result;
             }
             else
             {
@@ -53,12 +59,33 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         }
 
 
-        public async Task<bool> CloseCashier(Guid CashierId)
+        public async Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/close?cashierId={CashierId}");
+            var url = $"/close?employeerId={employeerId}";
+
+            // Serializar o objeto totals como JSON
+            var jsonContent = JsonConvert.SerializeObject(totals);
+            var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+            // Send the PUT request with the JSON content
+            var response = await httpClient.PutAsync(url, content);
+
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<bool> GetOpenedCashier()
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync("/openedCashier");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<bool>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
+
     }
 
 }

@@ -14,5 +14,6 @@ namespace AuthenticationService.Domain.Repositories
         Task<Guid> InsertAsync(Role entity);
         Task<bool> UpdateAsync(Role entity);
         Task<bool> DeleteAsync(Guid id);
+        Task<Role> GetByGroupAsync(int group);
     }
 }

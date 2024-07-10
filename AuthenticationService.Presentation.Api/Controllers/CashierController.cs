@@ -1,4 +1,5 @@
 ﻿using AuthenticationService.Core.Domain.Gateways.Cashier;
+using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace AuthenticationService.Presentation.Api.Controllers
     public class CashierOrderController : ControllerBase
     {
         private readonly ICashierOrderServiceGateway _cashierOrderServiceGateway;
+        private readonly ISaleOrderServiceGateway _saleOrderServiceGateway;
 
-        public CashierOrderController(ICashierOrderServiceGateway cashierOrderServiceGateway)
+        public CashierOrderController(ICashierOrderServiceGateway cashierOrderServiceGateway, ISaleOrderServiceGateway saleOrderServiceGateway)
         {
             _cashierOrderServiceGateway = cashierOrderServiceGateway;
+            _saleOrderServiceGateway = saleOrderServiceGateway;
         }
 
         [HttpPost("open")]
@@ -37,12 +40,13 @@ namespace AuthenticationService.Presentation.Api.Controllers
             }
         }
 
-        [HttpPost("close/{cashierId}")]
-        public async Task<ActionResult> CloseCashier(Guid cashierId)
+        [HttpPut("close/{employeerId}")]
+        public async Task<ActionResult> CloseCashier(int employeerId)
         {
             try
             {
-                var success = await _cashierOrderServiceGateway.CloseCashier(cashierId);
+                var totals = await _saleOrderServiceGateway.GetDailyTotals();
+                var success = await _cashierOrderServiceGateway.CloseCashier(employeerId, totals);
                 if (success)
                 {
                     return NoContent();

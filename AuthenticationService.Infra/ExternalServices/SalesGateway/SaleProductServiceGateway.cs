@@ -71,17 +71,29 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             return await response.Content.ReadFromJsonAsync<Guid>();
         }
 
-        public async Task<bool> UpdateProductAsync(Guid id, ProductDTO productDto)
+        public async Task<bool> UpdateProductAsync(Guid id, PhysiqueProductDTO productDto)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}", productDto);
+            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateProduct", productDto);
+            return response.IsSuccessStatusCode;
+        }
+        public async Task<bool> UpdateServiceAsync(Guid id, VirtualProductDTO serviceDto)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateService", serviceDto);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> DeleteProductAsync(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.DeleteAsync($"api/Product/{id}");
+            var response = await httpClient.DeleteAsync($"api/Product/deleteProduct/{id}");
+            return response.IsSuccessStatusCode;
+        }
+        public async Task<bool> DeleteServiceAsync(Guid id)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.DeleteAsync($"api/Product/deleteService/{id}");
             return response.IsSuccessStatusCode;
         }
 

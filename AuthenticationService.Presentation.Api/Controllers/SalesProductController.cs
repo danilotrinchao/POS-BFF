@@ -47,8 +47,8 @@ namespace AuthenticationService.Presentation.Api.Controllers
             return BadRequest();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> EditProduct(ProductDTO productDto)
+        [HttpPut("editProduct")]
+        public async Task<IActionResult> EditProduct(PhysiqueProductDTO productDto)
         {
             if (ModelState.IsValid)
             {
@@ -61,14 +61,38 @@ namespace AuthenticationService.Presentation.Api.Controllers
             }
             return Ok(productDto);
         }
+        [HttpPut("editService")]
+        public async Task<IActionResult> EditService(VirtualProductDTO productDto)
+        {
+            if (ModelState.IsValid)
+            {
+                var success = await _saleProductServiceGateway.UpdateServiceAsync(productDto.Id, productDto);
+                if (success)
+                {
+                    return RedirectToAction("Index");
+                }
+                ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
+            }
+            return Ok(productDto);
+        }
 
-        [HttpDelete]
+        [HttpDelete("deleteProduct")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
             var success = await _saleProductServiceGateway.DeleteProductAsync(id);
             if (success)
             {
-                return RedirectToAction("Index");
+                return Ok(success);
+            }
+            return NotFound();
+        }
+        [HttpDelete("deleteService")]
+        public async Task<IActionResult> DeleteService(Guid id)
+        {
+            var success = await _saleProductServiceGateway.DeleteServiceAsync(id);
+            if (success)
+            {
+                return Ok(success);
             }
             return NotFound();
         }

@@ -24,7 +24,7 @@ namespace AuthenticationService.Infra.Repository
             var userRole = new UserRole();
             userRole.UserId = userId;
             userRole.RoleId = roleId;
-            var query = @"INSERT INTO ""UserRole"" (""UserId"", ""RoleId"") VALUES (@UserId, @RoleId)";
+            var query = @"INSERT INTO ""UserRole"" (""UserId"", ""RoleId"") VALUES (@userId, @roleId)";
             await _dbConnection.ExecuteAsync(query, userRole);
         }
 
