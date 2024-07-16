@@ -68,17 +68,18 @@ namespace AuthenticationService.Infra.Repository
         {
             var query = @"
                         UPDATE public.""User""
-                        SET ""Nome"" = @Nome,
-                            ""Sobrenome"" = @Sobrenome,
-                            ""DtNascimento"" = @DtNascimento,
-                            ""Email"" = @Email,
-                            ""CPF"" = @CPF,
-                            ""Phone"" = @Phone,
-                            ""UserType"" = @UserType,
-                            ""AddressId"" = @AddressId,
+                        SET ""id"" = @Id,
+                            ""nome"" = @Nome,
+                            ""sobrenome"" = @Sobrenome,
+                            ""dtnascimento"" = @DtNascimento,
+                            ""email"" = @Email,
+                            ""cpf"" = @CPF,
+                            ""phone"" = @Phone,
+                            ""usertype"" = @UserType,
+                            ""addressid"" = @AddressId,
                             ""PasswordHash"" = @PasswordHash,
-                            ""Inative"" = @Inative
-                        WHERE ""Id"" = @Id";
+                            ""inative"" = @Inative
+                        WHERE ""id"" = @Id";
 
             var rowsAffected = await _dbConnection.ExecuteAsync(query, new
             {
