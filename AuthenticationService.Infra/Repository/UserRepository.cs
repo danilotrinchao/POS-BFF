@@ -76,16 +76,16 @@ namespace AuthenticationService.Infra.Repository
                 {
                     // Insert or update the address first
                     var addressQuery = @"
-                INSERT INTO public.""address"" (""id"", ""zipcode"", ""cityname"", ""state"", ""road"", ""number"")
-                VALUES (@Id, @ZipCode, @CityName, @State, @Road, @Number)
-                ON CONFLICT (""id"") DO UPDATE
-                SET ""zipcode"" = EXCLUDED.""zipcode"",
-                    ""cityname"" = EXCLUDED.""cityname"",
-                    ""state"" = EXCLUDED.""state"",
-                    ""road"" = EXCLUDED.""road"",
-                    ""number"" = EXCLUDED.""number""
-                RETURNING ""id"";
-            ";
+                                           INSERT INTO public.""address"" (""id"", ""zipcode"", ""cityname"", ""state"", ""road"", ""number"")
+                                           VALUES (@Id, @ZipCode, @CityName, @State, @Road, @Number)
+                                           ON CONFLICT (""id"") DO UPDATE
+                                           SET ""zipcode"" = EXCLUDED.""zipcode"",
+                                               ""cityname"" = EXCLUDED.""cityname"",
+                                               ""state"" = EXCLUDED.""state"",
+                                               ""road"" = EXCLUDED.""road"",
+                                               ""number"" = EXCLUDED.""number""
+                                           RETURNING ""id"";
+                                       ";
 
                     var addressId = await _dbConnection.ExecuteScalarAsync<int>(addressQuery, new
                     {

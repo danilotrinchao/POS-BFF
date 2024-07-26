@@ -85,6 +85,17 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
+        public async Task<bool> GetOpenedCashierByEmployeerId(int employeerId)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync($"/{employeerId}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<bool>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
+
 
     }
 
