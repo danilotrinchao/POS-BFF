@@ -66,37 +66,85 @@ namespace AuthenticationService.Infra.Repository
 
         public async Task<bool> UpdateAsync(User entity)
         {
-            var query = @"
-                        UPDATE public.""User""
-                        SET ""Nome"" = @Nome,
-                            ""Sobrenome"" = @Sobrenome,
-                            ""DtNascimento"" = @DtNascimento,
-                            ""Email"" = @Email,
-                            ""CPF"" = @CPF,
-                            ""Phone"" = @Phone,
-                            ""UserType"" = @UserType,
-                            ""AddressId"" = @AddressId,
-                            ""PasswordHash"" = @PasswordHash,
-                            ""Inative"" = @Inative
-                        WHERE ""Id"" = @Id";
-
-            var rowsAffected = await _dbConnection.ExecuteAsync(query, new
+            if (_dbConnection.State != ConnectionState.Open)
             {
-                entity.Nome,
-                entity.Sobrenome,
-                entity.DtNascimento,
-                entity.Email,
-                entity.CPF,
-                entity.Phone,
-                entity.UserType,
-                AddressId = entity.Address.Id,
-                entity.PasswordHash,
-                entity.Inative,
-                entity.Id
-            });
+                _dbConnection.Open();
+            }
+            using (var transaction = _dbConnection.BeginTransaction())
+            {
+                try
+                {
+                    // Insert or update the address first
+                    var addressQuery = @"
+                                           INSERT INTO public.""address"" (""id"", ""zipcode"", ""cityname"", ""state"", ""road"", ""number"")
+                                           VALUES (@Id, @ZipCode, @CityName, @State, @Road, @Number)
+                                           ON CONFLICT (""id"") DO UPDATE
+                                           SET ""zipcode"" = EXCLUDED.""zipcode"",
+                                               ""cityname"" = EXCLUDED.""cityname"",
+                                               ""state"" = EXCLUDED.""state"",
+                                               ""road"" = EXCLUDED.""road"",
+                                               ""number"" = EXCLUDED.""number""
+                                           RETURNING ""id"";
+                                       ";
 
-            return rowsAffected > 0;
+                    var addressId = await _dbConnection.ExecuteScalarAsync<int>(addressQuery, new
+                    {
+                        Id = entity.Address.Id,
+                        entity.Address.ZipCode,
+                        entity.Address.CityName,
+                        entity.Address.State,
+                        entity.Address.Road,
+                        entity.Address.Number
+                    }, transaction);
+
+                    // Ensure that the address ID is valid
+                    // if (addressId <= 0)
+                    // {
+                    //     transaction.Rollback();
+                    //     return false;
+                    // }
+
+                    // Update the user record
+                    var userQuery = @"
+                UPDATE public.""User""
+                SET ""nome"" = @Nome,
+                    ""sobrenome"" = @Sobrenome,
+                    ""dtnascimento"" = @DtNascimento,
+                    ""email"" = @Email,
+                    ""cpf"" = @CPF,
+                    ""phone"" = @Phone,
+                    ""usertype"" = @UserType,
+                    ""addressid"" = @AddressId,
+                    ""PasswordHash"" = @PasswordHash,
+                    ""inative"" = @Inative
+                WHERE ""id"" = @Id";
+
+                    var rowsAffected = await _dbConnection.ExecuteAsync(userQuery, new
+                    {
+                        entity.Nome,
+                        entity.Sobrenome,
+                        entity.DtNascimento,
+                        entity.Email,
+                        entity.CPF,
+                        entity.Phone,
+                        entity.UserType,
+                        AddressId = addressId,
+                        entity.PasswordHash,
+                        entity.Inative,
+                        entity.Id
+                    }, transaction);
+
+                    transaction.Commit();
+                    return rowsAffected > 0;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
+
 
 
 

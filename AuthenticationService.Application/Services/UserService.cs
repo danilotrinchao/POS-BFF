@@ -127,6 +127,7 @@ namespace AuthenticationService.Application.Services
             var user = await _userRepository.GetByIdAsync(userDto.Id);
             user = new User
             {
+                Id = user.Id,
                 Nome = userDto.Nome,
                 Sobrenome = userDto.Sobrenome,
                 Email = userDto.Email,
@@ -141,7 +142,6 @@ namespace AuthenticationService.Application.Services
             };
 
             var result =  await _userRepository.UpdateAsync(user);
-
             if (result)
                 await _userRepository.UpdateUserClientCredentialsAsync(user.Id, user.CPF, user.PasswordHash);
             return result;

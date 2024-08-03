@@ -62,5 +62,28 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 return Unauthorized(ex.Message);
             }
         }
+
+
+        [HttpGet("getCashier")]
+        public async Task<ActionResult> GetIsCashierOpenedEmployeerId(int employeerId)
+        {
+            try
+            {
+                var success = await _cashierOrderServiceGateway.GetOpenedCashierByEmployeerId(employeerId);
+                if (success != null)
+                {
+                    return Ok(success);
+                }
+                return BadRequest();
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
     }
 }

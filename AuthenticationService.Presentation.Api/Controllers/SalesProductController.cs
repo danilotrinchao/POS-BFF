@@ -24,7 +24,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 var result = await _saleProductServiceGateway.AddProductAsync(productDto);
                 if (result == null)
                 {
-                    return RedirectToAction("Index");
+                    return Ok(result);
                 }
                 ModelState.AddModelError(string.Empty, "An error occurred while adding the product.");
                 return Ok(result);
@@ -39,7 +39,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 var result = await _saleProductServiceGateway.AddServicetAsync(productDto);
                 if (result == null)
                 {
-                    return RedirectToAction("Index");
+                    return Ok(result);
                 }
                 ModelState.AddModelError(string.Empty, "An error occurred while adding the product.");
                 return Ok(result);
@@ -55,7 +55,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 var success = await _saleProductServiceGateway.UpdateProductAsync(productDto.Id, productDto);
                 if (success)
                 {
-                    return RedirectToAction("Index");
+                    return Ok(success);
                 }
                 ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
             }
@@ -69,7 +69,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 var success = await _saleProductServiceGateway.UpdateServiceAsync(productDto.Id, productDto);
                 if (success)
                 {
-                    return RedirectToAction("Index");
+                    return Ok(success);
                 }
                 ModelState.AddModelError(string.Empty, "An error occurred while updating the product.");
             }

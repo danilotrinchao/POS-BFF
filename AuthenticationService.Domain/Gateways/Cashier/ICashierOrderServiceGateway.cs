@@ -13,6 +13,7 @@ namespace AuthenticationService.Core.Domain.Gateways.Cashier
         Task<Guid> OpenCashier(decimal InitialBalance, int EmployeerId);
         Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals);
         Task<bool> GetOpenedCashier();
+        Task<bool> GetOpenedCashierByEmployeerId(int employeerId);
     }
 
 }

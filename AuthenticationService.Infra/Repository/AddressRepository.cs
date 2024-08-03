@@ -37,9 +37,9 @@ namespace AuthenticationService.Infra.Repository
 
         public async Task<bool> UpdateAsync(Address entity)
         {
-            var query = @"UPDATE Address SET ZipCode = @ZipCode, CityName = @CityName,
-                      State = @State, Road = @Road, Number = @Number
-                      WHERE Id = @Id";
+            var query = @"UPDATE ""address"" SET zipcode = @ZipCode, cityname = @CityName,
+                      state = @State, road = @Road, number = @Number
+                      WHERE ""id"" = @Id";
             var rowsAffected = await _dbConnection.ExecuteAsync(query, entity);
             return rowsAffected > 0;
         }
