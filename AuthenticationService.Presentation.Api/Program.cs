@@ -56,6 +56,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>(); // Substitua User
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+builder.Services.AddScoped<IConsumerServiceRepository, ConsumerServiceRepository>();
 // Substitua AddressRepository pelo seu próprio AddressRepository
 builder.Services.AddScoped<IDbConnection>(provider =>
     new NpgsqlConnection(configuration.GetConnectionString("DefaultConnection")));
@@ -67,6 +68,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IConsumerService, ControlTimeService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Configuração do HttpClient para ISaleServiceGateway

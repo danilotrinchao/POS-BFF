@@ -1,7 +1,9 @@
 ﻿using AuthenticationService.Application.Contracts;
+using AuthenticationService.Core.Domain.Entities;
 using AuthenticationService.Core.Domain.Enums;
 using AuthenticationService.Core.Domain.Gateways.Cashier;
 using AuthenticationService.Core.Domain.Gateways.Sales;
+using AuthenticationService.Core.Domain.Repositories;
 using AuthenticationService.Core.Domain.Requests;
 using AuthenticationService.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +26,8 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISaleProductServiceGateway _saleProductServiceGateway;
         private readonly IUserRepository _userRepository;
-
         private readonly ICashierOrderServiceGateway _cashierOrderServiceGateway;
+        private readonly IConsumerServiceRepository _consumerServiceRepository;
 
         public SalesOrderServiceGateway(IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
@@ -33,7 +35,8 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             IHttpContextAccessor httpContextAccessor,
             ISaleProductServiceGateway saleProductServiceGateway,
             IUserRepository userRepository,
-            ICashierOrderServiceGateway cashierOrderServiceGateway)
+            ICashierOrderServiceGateway cashierOrderServiceGateway,
+            IConsumerServiceRepository consumerServiceRepository)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
@@ -41,6 +44,7 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             _saleProductServiceGateway = saleProductServiceGateway;
             _userRepository = userRepository;
             _cashierOrderServiceGateway = cashierOrderServiceGateway;
+            _consumerServiceRepository = consumerServiceRepository;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
@@ -101,10 +105,22 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             {
                 var items = await GetOrderItemsByOrder(id);
                 
+                
                 foreach (var item in items)
                 {
+ 
                     if (item.ProductType == EProductType.VirtualProduct)
-                        await _userRepository.UpdateUserClientAvailableTimeAsync(saleDTO.ClientId, item.Quantity);
+                    {
+                        var consumerService = new ConsumerService();
+                        consumerService.userId = saleDTO.ClientId;
+                        consumerService.orderId = saleDTO.Id;
+                        consumerService.Active = true;
+                        consumerService.totalTime = item.Quantity;
+                        consumerService.serviceName = item.Name;
+                        await _consumerServiceRepository.CreateConsumerService(consumerService);
+                    }
+                        
+                        //await _userRepository.UpdateUserClientAvailableTimeAsync(saleDTO.ClientId, item.Quantity);
                         
                 }
             }
