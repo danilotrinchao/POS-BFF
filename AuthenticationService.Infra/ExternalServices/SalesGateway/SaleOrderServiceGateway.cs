@@ -108,20 +108,26 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
                 
                 foreach (var item in items)
                 {
- 
-                    if (item.ProductType == EProductType.VirtualProduct)
+                    
+                    if(item.ProductType == EProductType.VirtualProduct)
                     {
-                        var consumerService = new ConsumerService();
-                        consumerService.userId = saleDTO.ClientId;
-                        consumerService.orderId = saleDTO.Id;
-                        consumerService.Active = true;
-                        consumerService.totalTime = item.Quantity;
-                        consumerService.serviceName = item.Name;
-                        await _consumerServiceRepository.CreateConsumerService(consumerService);
-                    }
-                        
-                        //await _userRepository.UpdateUserClientAvailableTimeAsync(saleDTO.ClientId, item.Quantity);
-                        
+                        var service = await _saleProductServiceGateway.GetServiceById(item.ProductId);
+                        if(service.IsComputer == true)
+                        {
+                           item.Quantity += await _userRepository.GetAvailableTime(saleDTO.ClientId);
+                           await _userRepository.UpdateUserClientAvailableTimeAsync(saleDTO.ClientId, item.Quantity);
+                        }
+                        else
+                        {
+                            var consumerService = new ConsumerService();
+                            consumerService.userId = saleDTO.ClientId;
+                            consumerService.orderId = saleDTO.Id;
+                            consumerService.Active = true;
+                            consumerService.totalTime = item.Quantity;
+                            consumerService.serviceName = item.Name;
+                            await _consumerServiceRepository.CreateConsumerService(consumerService);
+                        }
+                    }                                             
                 }
             }
             return response.IsSuccessStatusCode;

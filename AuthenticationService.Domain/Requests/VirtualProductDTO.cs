@@ -18,5 +18,6 @@ namespace AuthenticationService.Core.Domain.Requests
         public decimal Price { get; set; }
         public double QuantityHours { get; set; }
         public int QuantityEquipament { get; set; }
+        public bool IsComputer { get; set; }
     }
 }

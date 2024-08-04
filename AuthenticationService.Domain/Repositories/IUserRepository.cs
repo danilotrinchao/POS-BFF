@@ -9,5 +9,6 @@ namespace AuthenticationService.Domain.Repositories
         Task CreateUserClientAsync(string username, string password, int availableTime, int userId);
         Task UpdateUserClientAvailableTimeAsync(int userId, int quantityHours);
         Task UpdateUserClientCredentialsAsync(int userId, string username, string password);
+        Task<int> GetAvailableTime(int userid);
     }
 }

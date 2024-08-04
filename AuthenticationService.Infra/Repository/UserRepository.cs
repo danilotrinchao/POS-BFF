@@ -232,6 +232,12 @@ namespace AuthenticationService.Infra.Repository
             }
         }
 
+        public async Task<int> GetAvailableTime(int userid)
+        {
+           var query = @"SELECT ""AvailableTime"" FROM public.""UserClient"" WHERE ""userid"" = @userid";
+           return  _dbConnection.QuerySingle<int>(query, new { id = userid });
+        }
+
 
 
     }
