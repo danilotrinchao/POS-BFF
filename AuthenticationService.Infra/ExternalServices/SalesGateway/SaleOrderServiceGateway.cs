@@ -8,14 +8,7 @@ using AuthenticationService.Core.Domain.Requests;
 using AuthenticationService.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuthenticationService.Infra.ExternalServices.SalesGateway
 {
@@ -122,7 +115,7 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
                             var consumerService = new ConsumerService();
                             consumerService.userId = saleDTO.ClientId;
                             consumerService.orderId = saleDTO.Id;
-                            consumerService.Active = true;
+                            consumerService.is_Active = true;
                             consumerService.totalTime = item.Quantity;
                             consumerService.serviceName = item.Name;
                             await _consumerServiceRepository.CreateConsumerService(consumerService);

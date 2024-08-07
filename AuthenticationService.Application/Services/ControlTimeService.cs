@@ -30,7 +30,14 @@ namespace AuthenticationService.Application.Services
         {
             var consumer = await _consumerServiceRepository.GetConsumerServiceById(consumerServiceId);
             consumer.totalTime = totalTime;
+            if(totalTime == 0)
+                consumer.is_Active = false;
             return await _consumerServiceRepository.UpdateConsumerService(consumer);
+        }
+
+        public async Task<Guid> CreateConsumerService(ConsumerService consumer)
+        {
+            return await _consumerServiceRepository.CreateConsumerService(consumer);
         }
     }
 }

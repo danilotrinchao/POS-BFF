@@ -7,5 +7,8 @@ namespace AuthenticationService.Application.Contracts
     {
         Task<IEnumerable<ConsumerService>> GetServicesByUserId(int userId);
         Task<bool> UpdateConsumerService(Guid consumerServiceId, int totalTime);
+        Task<Guid> CreateConsumerService(ConsumerService consumer);
+
+
     }
 }
