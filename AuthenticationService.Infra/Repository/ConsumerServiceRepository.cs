@@ -48,7 +48,7 @@ namespace AuthenticationService.Infra.Repository
         }
         public async Task<ConsumerService> GetConsumerServiceById(Guid id)
         {
-            var query = @"SELECT * FROM ""ConsumerService"" WHERE ""id"" = @id";
+            var query = @"SELECT * FROM ""consumerservice"" WHERE ""id"" = @id";
             var result = await _dbConnection.QuerySingleAsync<ConsumerService>(query, new { id = id });
             return result;
         }
@@ -56,14 +56,14 @@ namespace AuthenticationService.Infra.Repository
         public async Task<bool> UpdateConsumerService(ConsumerService consumer)
         {
             var query = @"
-            UPDATE ""ConsumerService"" 
-            SET 
-                ""userId"" = @userId, 
-                ""orderId"" = @orderId, 
-                ""serviceName"" = @serviceName, 
-                ""Active"" = @Active, 
-                ""totalTime"" = @totalTime
-            WHERE ""id"" = @id";
+                            UPDATE ""consumerservice"" 
+                            SET 
+                                ""userid"" = @userId, 
+                                ""orderid"" = @orderId, 
+                                ""servicename"" = @serviceName, 
+                                ""is_active"" = @is_Active, 
+                                ""totaltime"" = @totalTime
+                            WHERE ""id"" = @id";
             var rowsAffected = await _dbConnection.ExecuteAsync(query, consumer);
             return rowsAffected > 0;
         }
