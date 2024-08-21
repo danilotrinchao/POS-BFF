@@ -22,5 +22,7 @@ namespace AuthenticationService.Core.Domain.Gateways.Sales
         Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid);
         Task<VirtualProductDTO> GetServiceById(Guid id);
         Task<PhysiqueProductDTO> GetProductById(Guid id);
+        Task CheckAndNotifyStockAsync();
+        Task<List<string>> GetNotifyStockAsync();
     }
 }

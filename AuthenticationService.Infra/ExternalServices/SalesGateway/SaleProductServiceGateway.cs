@@ -1,6 +1,7 @@
 ﻿using AuthenticationService.Application.Contracts;
 using AuthenticationService.Core.Domain.Enums;
 using AuthenticationService.Core.Domain.Gateways.Sales;
+using AuthenticationService.Core.Domain.Interfaces;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -20,17 +21,21 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
         private readonly IConfiguration _configuration;
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly INotificationPublisher _notificationPublisher;
+        private readonly HashSet<string> _notifiedProducts = new HashSet<string>();
 
         public SaleProductServiceGateway(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IAuthService authService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            INotificationPublisher notificationPublisher)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
+            _notificationPublisher = notificationPublisher;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
@@ -38,20 +43,6 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             var baseAddress = _configuration["SalesApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
             httpClient.BaseAddress = new Uri(baseAddress);
-            //var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
-
-            // Incluir o token no cabeçalho de autorização das requisições HTTP
-            // httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            // Adicionar cabeçalho de autorização
-
-            //if (!string.IsNullOrEmpty(token))
-            //{
-            //   //    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            //}
-            //else
-            //{
-            //    throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
-            //}
 
             return httpClient;
         }
@@ -161,6 +152,72 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
+
+        public async Task CheckAndNotifyStockAsync()
+        {
+            var products = await GetAllProductsAsync();
+
+            var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
+            var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&
+                                                          x.DueDate.Value.Date <= DateTime.UtcNow.AddDays(3).Date &&
+                                                          x.DueDate.Value.Date >= DateTime.UtcNow.Date).ToList();
+
+            foreach (var product in productsOutOfStock)
+            {
+                if (_notifiedProducts.Contains(product.Name))
+                    continue; // Ignore products that have already been notified
+
+                var message = $"Produto esgotado em estoque: {product.Name}";
+                await _notificationPublisher.PublishAsync(message);
+                _notifiedProducts.Add(product.Name); // Mark the product as notified
+            }
+
+            foreach (var product in productsNearDueDate)
+            {
+                if (_notifiedProducts.Contains(product.Name))
+                    continue; // Ignore products that have already been notified
+
+                var message = $"Produto próximo da data de vencimento: {product.Name}, Data de vencimento: {product.DueDate.Value.ToShortDateString()}";
+                await _notificationPublisher.PublishAsync(message);
+                _notifiedProducts.Add(product.Name); // Mark the product as notified
+            }
+        }
+
+        public async Task<List<string>> GetNotifyStockAsync()
+        {
+            var notifications = new List<string>();
+
+            var products = await GetAllProductsAsync();
+
+            var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
+            var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&
+                                                          x.DueDate.Value.Date <= DateTime.UtcNow.AddDays(3).Date &&
+                                                          x.DueDate.Value.Date >= DateTime.UtcNow.Date).ToList();
+
+            foreach (var product in productsOutOfStock)
+            {
+                if (_notifiedProducts.Contains(product.Name))
+                    continue; // Ignora produtos já notificados
+
+                var message = $"Produto esgotado em estoque: {product.Name}";
+                notifications.Add(message); // Adiciona a mensagem à lista de notificações
+                _notifiedProducts.Add(product.Name); // Marca o produto como notificado
+            }
+
+            foreach (var product in productsNearDueDate)
+            {
+                if (_notifiedProducts.Contains(product.Name))
+                    continue; // Ignora produtos já notificados
+
+                var message = $"Produto próximo da data de vencimento: {product.Name}, Data de vencimento: {product.DueDate.Value.ToShortDateString()}";
+                notifications.Add(message); // Adiciona a mensagem à lista de notificações
+                _notifiedProducts.Add(product.Name); // Marca o produto como notificado
+            }
+
+            return notifications; // Retorna a lista de notificações
+        }
+
+
 
     }
 
