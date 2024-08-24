@@ -10,5 +10,7 @@ namespace AuthenticationService.Core.Domain.Repositories
         Task<bool> UpdateConsumerService(ConsumerService consumer);
         Task<bool> DeleteConsumerService(Guid consumerId);
         Task<ConsumerService> GetConsumerServiceById(Guid id);
+        Task<IEnumerable<ConsumerService>> GetActiveConsumerServicesAsync();
+        Task UpdateElapsedTimeAsync(Guid consumerId);
     }
 }

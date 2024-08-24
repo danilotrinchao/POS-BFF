@@ -15,5 +15,6 @@ namespace AuthenticationService.Core.Domain.Entities
         public Guid serviceId { get; set; }
         public bool is_Active { get; set; }
         public int totalTime { get; set; }
+        public DateTime StartTime { get; set; }
     }
 }

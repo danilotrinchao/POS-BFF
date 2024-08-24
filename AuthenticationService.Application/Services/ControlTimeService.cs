@@ -1,15 +1,22 @@
 ﻿using AuthenticationService.Application.Contracts;
 using AuthenticationService.Core.Domain.Entities;
+using AuthenticationService.Core.Domain.Interfaces;
 using AuthenticationService.Core.Domain.Repositories;
 
 namespace AuthenticationService.Application.Services
 {
-    public class ControlTimeService: IConsumerService
+    public class ControlTimeService: IControllTimeService
     {
-        public readonly IConsumerServiceRepository _consumerServiceRepository;
-        public ControlTimeService(IConsumerServiceRepository consumerServiceRepository)
+        private readonly IConsumerServiceRepository _consumerServiceRepository;
+        private readonly INotificationPublisher _notificationPublisher;
+        private readonly ITimerCache _timerCache;
+        public ControlTimeService(IConsumerServiceRepository consumerServiceRepository,
+                                  INotificationPublisher notificationPublisher,
+                                  ITimerCache timerCache)
         {
-                _consumerServiceRepository = consumerServiceRepository;
+            _consumerServiceRepository = consumerServiceRepository;
+            _notificationPublisher = notificationPublisher;
+            _timerCache = timerCache;
         }
 
         public Task<IEnumerable<ConsumerService>> GetServicesByUserId(int userId)
@@ -27,12 +34,47 @@ namespace AuthenticationService.Application.Services
             consumer.totalTime = totalTime;
             if(totalTime == 0)
                 consumer.is_Active = false;
-            return await _consumerServiceRepository.UpdateConsumerService(consumer);
+
+            bool isUpdated = await _consumerServiceRepository.UpdateConsumerService(consumer);
+            if (isUpdated)
+            {
+                // Atualizar o cache Redis
+                var timerInfo = new TimerInfo
+                {
+                    TimerId = consumerServiceId,
+                    StartTime = consumer.StartTime.Minute, // Certifique-se de que StartTime é corretamente atribuído
+                    TotalTime = totalTime,
+                    IsRunning = consumer.is_Active
+                };
+
+                await _timerCache.UpdateTimerAsync(consumerServiceId, timerInfo);
+            }
+
+            return isUpdated;
         }
 
         public async Task<Guid> CreateConsumerService(ConsumerService consumer)
         {
             return await _consumerServiceRepository.CreateConsumerService(consumer);
+        }
+
+        public async Task CheckAndNotifyServiceTimeAsync()
+        {
+            var activeTimers = await _timerCache.GetTimersAsync();
+            foreach (var timerInfo in activeTimers.Values)
+            {
+                if (timerInfo.is_Active && timerInfo.totalTime <= 3) // 3 minutos ou menos
+                {
+                    var message = $"Serviço '{timerInfo.serviceName}' para o usuário {timerInfo.userId} está prestes a expirar.";
+                    await _notificationPublisher.PublishAsync(message);
+                }
+            }
+        }
+
+        public async Task<IEnumerable<ConsumerService>> GetActiveConsumerServicesAsync()
+        {
+            // Adicione aqui qualquer lógica adicional necessária antes de chamar o repositório
+            return await _consumerServiceRepository.GetActiveConsumerServicesAsync();
         }
     }
 }

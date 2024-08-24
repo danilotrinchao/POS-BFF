@@ -7,13 +7,16 @@ using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Interfaces;
 using AuthenticationService.Core.Domain.Repositories;
 using AuthenticationService.Domain.Repositories;
+using AuthenticationService.Infra.Cache;
 using AuthenticationService.Infra.ExternalServices.SalesGateway;
 using AuthenticationService.Infra.Notifications;
 using AuthenticationService.Infra.Repository;
 using AuthenticationService.Infra.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using StackExchange.Redis;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
@@ -69,12 +72,19 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IConsumerService, ControlTimeService>();
+builder.Services.AddScoped<IControllTimeService, ControlTimeService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Register notification services
 builder.Services.AddSingleton<INotificationPublisher, NotificationPublisher>();
-
+builder.Services.AddScoped<ITimerCache, TimerCache>();
+var redisConnectionString = "localhost:6379,abortConnect=false,connectTimeout=10000";
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+builder.Services.AddScoped<IDatabase>(sp =>
+{
+    var connectionMultiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
+    return connectionMultiplexer.GetDatabase();
+});
 
 // Register background service
 builder.Services.AddScoped<ISaleProductServiceGateway, SaleProductServiceGateway>();
@@ -82,13 +92,12 @@ builder.Services.AddTransient<ISaleClientServiceGateway, SalesClientServiceGatew
 builder.Services.AddScoped<ISalesServiceUsageGateway, SalesServiceUsageGateway>();
 builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway>();
 builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
-builder.Services.AddHttpClient("SalesApi",
-      c => c.BaseAddress = new Uri("http://localhost:7250/"));
-builder.Services.AddHttpClient("CashierApi",
-      c => c.BaseAddress = new Uri("http://localhost:7209/"));
+builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("http://localhost:7250/"));
+builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("http://localhost:7209/"));
 
 // Register the background service
 builder.Services.AddHostedService<StockBackgroundService>();
+builder.Services.AddHostedService<TimerBackgroundService>();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -120,7 +129,7 @@ app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();

@@ -67,5 +67,24 @@ namespace AuthenticationService.Infra.Repository
             var rowsAffected = await _dbConnection.ExecuteAsync(query, consumer);
             return rowsAffected > 0;
         }
+
+        public async Task<IEnumerable<ConsumerService>> GetActiveConsumerServicesAsync()
+        {
+            var query = @"
+            SELECT * 
+            FROM ""consumerservice"" 
+            WHERE ""is_active"" = true";
+            var result = await _dbConnection.QueryAsync<ConsumerService>(query);
+            return result;
+        }
+
+        public async Task UpdateElapsedTimeAsync(Guid consumerId)
+        {
+            var query = @"
+            UPDATE ""consumerservice"" 
+            SET ""totaltime"" = EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - ""starttime""))
+            WHERE ""id"" = @id";
+            await _dbConnection.ExecuteAsync(query, new { id = consumerId });
+        }
     }
 }

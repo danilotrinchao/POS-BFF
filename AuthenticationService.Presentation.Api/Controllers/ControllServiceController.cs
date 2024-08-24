@@ -1,8 +1,12 @@
 ﻿using AuthenticationService.Application.Contracts;
+using AuthenticationService.Application.Services;
 using AuthenticationService.Core.Domain.Entities;
 using AuthenticationService.Core.Domain.Requests;
+using AuthenticationService.Infra.Cache;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
 
 namespace AuthenticationService.Presentation.Api.Controllers
 {
@@ -10,10 +14,12 @@ namespace AuthenticationService.Presentation.Api.Controllers
     [Route("api/[controller]")]
     public class ControllServiceController : ControllerBase
     {
-        private readonly IConsumerService _consumerService;
-        public ControllServiceController(IConsumerService consumer)
+        private readonly IControllTimeService _consumerService;
+        private readonly ITimerCache _timerCache;
+        public ControllServiceController(IControllTimeService consumer, ITimerCache timerCache)
         {
             _consumerService = consumer;
+            _timerCache = timerCache;
         }
 
         [HttpGet("{userid}")]
@@ -70,5 +76,65 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 return BadRequest($"Failed to stop sservice: {ex.Message}");
             }
         }
+
+        [HttpGet("streamTimers")]
+        public async Task<IActionResult> StreamTimers()
+        {
+            Response.ContentType = "text/event-stream";
+            Response.Headers.Add("Cache-Control", "no-cache");
+            Response.Headers.Add("Connection", "keep-alive");
+
+            // Obter todos os cronômetros ativos na inicialização
+            //var activeTimers = await _consumerService.GetActiveConsumerServicesAsync();
+            var activeTimers = await _timerCache.GetTimersAsync();
+            while (!HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                // Atualizar o estado dos cronômetros
+                var updatedTimers = new List<object>();
+
+                foreach (var timer in activeTimers.Values)
+                {
+                    var elapsedTime = (int)(DateTime.UtcNow - timer.StartTime).TotalMinutes;
+                    var timeRemaining = timer.totalTime - elapsedTime;
+
+                    var status = new
+                    {
+                        TimerId = timer.id,
+                        TimeRemaining = timeRemaining > 0 ? timeRemaining : 0
+                    };
+
+                    updatedTimers.Add(status);
+                }
+
+                var message = $"data: {JsonSerializer.Serialize(updatedTimers)}\n\n";
+                var bytes = Encoding.UTF8.GetBytes(message);
+                await Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                await Response.Body.FlushAsync();
+
+                await Task.Delay(10000);// Atualiza a cada 10 segundos
+            }
+
+            return new EmptyResult();
+        }
+        [HttpGet("currentTimers")]
+        public async Task<IActionResult> GetCurrentTimers()
+        {
+            var activeTimers = await _consumerService.GetActiveConsumerServicesAsync();
+
+            // Calcular o tempo restante para cada cronômetro
+            var timersStatus = activeTimers.Select(timer =>
+            {
+                var elapsedTime = (int)(DateTime.UtcNow - timer.StartTime).TotalMinutes;
+                var timeRemaining = timer.totalTime - elapsedTime;
+                return new
+                {
+                    TimerId = timer.id,
+                    TimeRemaining = timeRemaining > 0 ? timeRemaining : 0
+                };
+            });
+
+            return Ok(timersStatus);
+        }
+
     }
 }

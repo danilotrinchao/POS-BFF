@@ -1,4 +1,6 @@
-﻿using AuthenticationService.Core.Domain.Gateways.Sales;
+﻿using AuthenticationService.Application.Contracts;
+using AuthenticationService.Application.Services;
+using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -11,11 +13,15 @@ namespace AuthenticationService.Presentation.Api.Controllers
     {
         private readonly INotificationPublisher _notificationPublisher;
         private readonly ISaleProductServiceGateway _saleProductServiceGateway;
+        private readonly IControllTimeService _controlTimeService;
 
-        public NotificationController(INotificationPublisher notificationPublisher, ISaleProductServiceGateway saleProductServiceGateway)
+        public NotificationController(INotificationPublisher notificationPublisher, 
+            ISaleProductServiceGateway saleProductServiceGateway,
+            IControllTimeService controllTimeService)
         {
             _notificationPublisher = notificationPublisher;
             _saleProductServiceGateway = saleProductServiceGateway;
+            _controlTimeService = controllTimeService;
         }
 
         [HttpGet("stream")]
@@ -25,15 +31,27 @@ namespace AuthenticationService.Presentation.Api.Controllers
             Response.Headers.Add("Cache-Control", "no-cache");
             Response.Headers.Add("Connection", "keep-alive");
 
-            var notifications = await _saleProductServiceGateway.GetNotifyStockAsync();
-
-            foreach (var notification in notifications)
+            // Loop contínuo para enviar notificações em tempo real
+            while (true)
             {
-                await _notificationPublisher.PublishAsync(notification);
-                await Task.Delay(5000); // Exemplo: Atraso de 5 segundos entre as notificações
+                // Notificações de produtos
+                var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync();
+                foreach (var notification in productNotifications)
+                {
+                    await _notificationPublisher.PublishAsync(notification);
+                    await Task.Delay(5000); // Exemplo: Atraso de 5 segundos entre as notificações
+                }
+
+                // Notificações de controle de tempo de serviço
+                await _controlTimeService.CheckAndNotifyServiceTimeAsync();
+
+                await Task.Delay(10000); // Ajuste o intervalo conforme necessário
             }
 
+            // Este return nunca será alcançado, pois o loop acima é contínuo.
+            // Mas o método precisa ter um retorno válido para compilar.
             return new EmptyResult();
         }
+
     }
 }
