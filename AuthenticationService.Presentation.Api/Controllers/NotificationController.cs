@@ -36,16 +36,21 @@ namespace AuthenticationService.Presentation.Api.Controllers
             {
                 // Notificações de produtos
                 var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync();
+                var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
                 foreach (var notification in productNotifications)
                 {
                     await _notificationPublisher.PublishAsync(notification);
-                    await Task.Delay(5000); // Exemplo: Atraso de 5 segundos entre as notificações
+                    await Task.Delay(500000); // Exemplo: Atraso de 5 segundos entre as notificações
                 }
-
+                foreach (var notification in servicesNotifications)
+                {
+                    await _notificationPublisher.PublishAsync(notification);
+                    await Task.Delay(500000); // Exemplo: Atraso de 5 segundos entre as notificações
+                }
                 // Notificações de controle de tempo de serviço
                 await _controlTimeService.CheckAndNotifyServiceTimeAsync();
 
-                await Task.Delay(10000); // Ajuste o intervalo conforme necessário
+                await Task.Delay(100000); // Ajuste o intervalo conforme necessário
             }
 
             // Este return nunca será alcançado, pois o loop acima é contínuo.

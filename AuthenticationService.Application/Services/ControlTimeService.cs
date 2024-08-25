@@ -10,6 +10,7 @@ namespace AuthenticationService.Application.Services
         private readonly IConsumerServiceRepository _consumerServiceRepository;
         private readonly INotificationPublisher _notificationPublisher;
         private readonly ITimerCache _timerCache;
+        private readonly HashSet<string> _notifiedServices = new HashSet<string>();
         public ControlTimeService(IConsumerServiceRepository consumerServiceRepository,
                                   INotificationPublisher notificationPublisher,
                                   ITimerCache timerCache)
@@ -70,7 +71,26 @@ namespace AuthenticationService.Application.Services
                 }
             }
         }
+        public async Task<List<string>> GetNotifyServiceAsync()
+        {
+            var notifications = new List<string>();
 
+            var activeTimers = await _timerCache.GetTimersAsync();
+
+            foreach (var product in activeTimers.Values)
+            {
+                if (_notifiedServices.Contains(product.serviceName))
+                    continue; // Ignora produtos já notificados
+                if (product.is_Active && product.totalTime <= 2) // 3 minutos ou menos
+                {
+                    var message = $"Serviço '{product.serviceName}' para o usuário {product.userId} está prestes a expirar.";
+                    notifications.Add(message); // Adiciona a mensagem à lista de notificações
+                    _notifiedServices.Add(product.serviceName); // Marca o produto como notificado
+                }
+            }
+
+            return notifications; // Retorna a lista de notificações
+        }
         public async Task<IEnumerable<ConsumerService>> GetActiveConsumerServicesAsync()
         {
             // Adicione aqui qualquer lógica adicional necessária antes de chamar o repositório

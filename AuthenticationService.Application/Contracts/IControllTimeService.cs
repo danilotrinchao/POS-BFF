@@ -10,6 +10,7 @@ namespace AuthenticationService.Application.Contracts
         Task<Guid> CreateConsumerService(ConsumerService consumer);
         Task CheckAndNotifyServiceTimeAsync();
         Task<IEnumerable<ConsumerService>> GetActiveConsumerServicesAsync();
+        Task<List<string>> GetNotifyServiceAsync();
 
 
     }
