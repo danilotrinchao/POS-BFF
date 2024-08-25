@@ -47,8 +47,7 @@ namespace AuthenticationService.Presentation.Api.Controllers
                     await _notificationPublisher.PublishAsync(notification);
                     await Task.Delay(500000); // Exemplo: Atraso de 5 segundos entre as notificações
                 }
-                // Notificações de controle de tempo de serviço
-                await _controlTimeService.CheckAndNotifyServiceTimeAsync();
+             
 
                 await Task.Delay(100000); // Ajuste o intervalo conforme necessário
             }
