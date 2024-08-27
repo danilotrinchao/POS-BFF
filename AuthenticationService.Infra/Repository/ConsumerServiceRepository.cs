@@ -42,7 +42,8 @@ namespace AuthenticationService.Infra.Repository
 
         public async Task<IEnumerable<ConsumerService>> GetConsumerServiceByUserId(int userId)
         {
-            var query = @"SELECT ""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"" FROM ""consumerservice"" WHERE ""userid"" = @userid AND  ""is_active"" = true ";
+            var query = @"SELECT ""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"" FROM ""consumerservice"" WHERE ""userid"" = @userid";
+            //var query = @"SELECT ""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"" FROM ""consumerservice"" WHERE ""userid"" = @userid AND  ""is_active"" = true ";
             var result = await _dbConnection.QueryAsync<ConsumerService>(query, new { id = userId });
             return result;
         }
