@@ -2,6 +2,7 @@
 using AuthenticationService.Core.Domain.Gateways.Sales;
 using AuthenticationService.Core.Domain.Requests;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace AuthenticationService.Presentation.Api.Controllers
 {
@@ -95,6 +96,16 @@ namespace AuthenticationService.Presentation.Api.Controllers
                 return Ok(success);
             }
             return NotFound();
+        }
+        [HttpGet("GetProductByCodeBar")]
+        public async Task<IActionResult> GetProductByCodeBar(string barcode)
+        {
+            var product = await _saleProductServiceGateway.GetProductByBarCode(barcode);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return Ok(product);
         }
 
         [HttpGet("GetProductById")]

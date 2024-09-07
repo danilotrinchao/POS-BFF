@@ -99,6 +99,16 @@ namespace AuthenticationService.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
+        public async Task<PhysiqueProductDTO> GetProductByBarCode(string barcode)
+        {
+            var httpClient = await CreateHttpClientAsync();
+            var response = await httpClient.GetAsync($"api/Product/getbybarcode/{barcode}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<PhysiqueProductDTO>();
+            }
+            throw new HttpRequestException(response.ReasonPhrase);
+        }
         public async Task<VirtualProductDTO> GetServiceById(Guid id)
         {
             var httpClient = await CreateHttpClientAsync();
