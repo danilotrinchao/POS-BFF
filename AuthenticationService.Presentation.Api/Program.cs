@@ -57,14 +57,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IDbConnection>(provider =>
+    new NpgsqlConnection(configuration.GetConnectionString("DefaultConnection")));
 // Register scoped and singleton services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IConsumerServiceRepository, ConsumerServiceRepository>();
-builder.Services.AddScoped<IDbConnection>(provider =>
-    new NpgsqlConnection(configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<ICryptography, Cryptography>();
 builder.Services.AddScoped<HashAlgorithm, HMACSHA512>();
 
