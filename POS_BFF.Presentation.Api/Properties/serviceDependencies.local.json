@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "compute.appService1": {
+      "group": "connections",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/UbxAuthentication",
+      "type": "compute.appService.windows"
+    },
+    "compute.appService2": {
+      "secretStore": null,
+      "group": "connections",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/UbxGaming-Authentication",
+      "type": "compute.appService.linux",
+      "connectionId": null
+    },
+    "compute.appService3": {
+      "group": "connections",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/SalesService-api",
+      "type": "compute.appService.linux"
+    },
+    "apis1": {
+      "ignored": "true",
+      "type": "apis"
+    }
+  }
+}

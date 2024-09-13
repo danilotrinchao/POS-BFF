@@ -1,0 +1,6 @@
+@POS_BFF.Presentation.Api_HostAddress = http://localhost:5286
+
+GET {{POS_BFF.Presentation.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
