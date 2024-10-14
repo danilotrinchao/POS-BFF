@@ -10,20 +10,20 @@ namespace POS_BFF.Core.Domain.Gateways.Sales
 {
     public interface ISaleProductServiceGateway
     {
-        Task<Guid> AddProductAsync(PhysiqueProductDTO productDto);
-        Task<Guid> AddServicetAsync(VirtualProductDTO productDto);
-        Task<bool> UpdateProductAsync(Guid id, PhysiqueProductDTO productDto);
-        Task<bool> UpdateServiceAsync(Guid id, VirtualProductDTO serviceDto);
-        Task<bool> DeleteProductAsync(Guid id);
-        Task<bool> DeleteServiceAsync(Guid id);
-        Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync();
-        Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync();
-        Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid);
-        Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid);
-        Task<VirtualProductDTO> GetServiceById(Guid id);
-        Task<PhysiqueProductDTO> GetProductById(Guid id);
-        Task CheckAndNotifyStockAsync();
-        Task<List<string>> GetNotifyStockAsync();
-        Task<PhysiqueProductDTO> GetProductByBarCode(string barcode);
+        Task<Guid> AddProductAsync(PhysiqueProductDTO productDto, Guid TenantId);
+        Task<Guid> AddServicetAsync(VirtualProductDTO productDto, Guid TenantId);
+        Task<bool> UpdateProductAsync(Guid id, PhysiqueProductDTO productDto, Guid TenantId);
+        Task<bool> UpdateServiceAsync(Guid id, VirtualProductDTO serviceDto, Guid TenantId);
+        Task<bool> DeleteProductAsync(Guid id, Guid TenantId);
+        Task<bool> DeleteServiceAsync(Guid id, Guid TenantId);
+        Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync( Guid TenantId);
+        Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync( Guid TenantId);
+        Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid, Guid TenantId);
+        Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid, Guid TenantId);
+        Task<VirtualProductDTO> GetServiceById(Guid id, Guid TenantId);
+        Task<PhysiqueProductDTO> GetProductById(Guid id, Guid TenantId);
+        Task CheckAndNotifyStockAsync( Guid TenantId);
+        Task<List<string>> GetNotifyStockAsync(Guid TenantId);
+        Task<PhysiqueProductDTO> GetProductByBarCode(string barcode, Guid TenantId);
     }
 }

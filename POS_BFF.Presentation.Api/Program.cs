@@ -21,6 +21,10 @@ using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using POS_BFF.Infra.ExternalServices.CashierGateway;
+using POS_BFF.Core.Domain.Gateways.Authentication;
+using POS_BFF.Infra.ExternalServices.AuthenticationGateway;
+using POS_BFF.Core.Domain.Gateways.Company;
+using POS_BFF.Infra.ExternalServices.CompanyGateway;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,8 +98,12 @@ builder.Services.AddTransient<ISaleClientServiceGateway, SalesClientServiceGatew
 builder.Services.AddScoped<ISalesServiceUsageGateway, SalesServiceUsageGateway>();
 builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway>();
 builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
+builder.Services.AddTransient<IAuthenticationTenantGateway, AuthenticationTenantGateway>();
+builder.Services.AddTransient<ICompanyEmployeerGateway, CompanyEmployeerGateway>();
 builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("http://localhost:7250/"));
 builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("http://localhost:7209/"));
+builder.Services.AddHttpClient("AuthenticationApi", c => c.BaseAddress = new Uri("http://localhost:7278/"));
+builder.Services.AddHttpClient("CompanyApi", c => c.BaseAddress = new Uri("https://localhost:7223/"));
 
 // Register the background service
 builder.Services.AddHostedService<StockBackgroundService>();

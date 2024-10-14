@@ -19,17 +19,17 @@ namespace POS_BFF.Presentation.Api.Controllers
 
         [HttpPost("clients")]
         [Authorize(Policy = "SellerOrAdmin")]
-        public async Task<IActionResult> CreateClient(ClientRequest client)
+        public async Task<IActionResult> CreateClient(ClientRequest client, Guid TenantId)
         {
-            var clientId = await _saleServiceGateway.CreateClientAsync(client);
+            var clientId = await _saleServiceGateway.CreateClientAsync(client, TenantId);
             return CreatedAtAction(nameof(GetClientById), new { id = clientId }, client);
         }
 
         [HttpGet("clients/{id}")]
         [Authorize(Policy = "SellerOrAdmin")]
-        public async Task<IActionResult> GetClientById(int id)
+        public async Task<IActionResult> GetClientById(Guid id, Guid TenantId)
         {
-            var client = await _saleServiceGateway.GetClientByIdAsync(id);
+            var client = await _saleServiceGateway.GetClientByIdAsync(id, TenantId);
             if (client == null)
             {
                 return NotFound();
@@ -39,22 +39,22 @@ namespace POS_BFF.Presentation.Api.Controllers
 
         [HttpGet("clients")]
         
-        public async Task<IActionResult> GetAllClients()
+        public async Task<IActionResult> GetAllClients(Guid TenantId)
         {
-            var clients = await _saleServiceGateway.GetAllClientsAsync();
+            var clients = await _saleServiceGateway.GetAllClientsAsync(TenantId);
             return Ok(clients);
         }
 
         [HttpPut("clients/{id}")]
         [Authorize(Policy = "SellerOrAdmin")]
-        public async Task<IActionResult> UpdateClient(int id, ClientRequest client)
+        public async Task<IActionResult> UpdateClient(Guid id, Guid TenantId, ClientRequest client)
         {
             if (id != client.Id)
             {
                 return BadRequest("ID mismatch.");
             }
 
-            var updated = await _saleServiceGateway.UpdateClientAsync(client);
+            var updated = await _saleServiceGateway.UpdateClientAsync(client, TenantId);
             if (!updated)
             {
                 return StatusCode(500, "A problem happened while handling your request.");
@@ -65,9 +65,9 @@ namespace POS_BFF.Presentation.Api.Controllers
 
         [HttpDelete("clients/{id}")]
         [Authorize(Policy = "SellerOrAdmin")]
-        public async Task<IActionResult> DeleteClient(int id)
+        public async Task<IActionResult> DeleteClient(Guid id, Guid TenantId)
         {
-            var deleted = await _saleServiceGateway.DeleteClientAsync(id);
+            var deleted = await _saleServiceGateway.DeleteClientAsync(id, TenantId);
             if (!deleted)
             {
                 return StatusCode(500, "A problem happened while handling your request.");

@@ -5,7 +5,7 @@ namespace POS_BFF.Domain.Entities
 {
     public class User
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Nome { get; set; }
         public string  Sobrenome{ get; set; }
 

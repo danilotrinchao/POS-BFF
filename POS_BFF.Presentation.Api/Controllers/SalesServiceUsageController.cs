@@ -17,11 +17,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost("start/{orderItemId}")]
-        public async Task<IActionResult> StartService(Guid orderItemId)
+        public async Task<IActionResult> StartService(Guid orderItemId, Guid TenantId)
         {
             try
             {
-                await _salesServiceUsageGateway.StartServiceAsync(orderItemId);
+                await _salesServiceUsageGateway.StartServiceAsync(orderItemId, TenantId);
                 return Ok();
             }
             catch (Exception ex)
@@ -32,11 +32,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost("pause/{orderItemId}")]
-        public async Task<IActionResult> PauseService(Guid orderItemId)
+        public async Task<IActionResult> PauseService(Guid orderItemId, Guid TenantId)
         {
             try
             {
-                await _salesServiceUsageGateway.PauseServiceAsync(orderItemId);
+                await _salesServiceUsageGateway.PauseServiceAsync(orderItemId, TenantId);
                 return Ok();
             }
             catch (Exception ex)
@@ -47,11 +47,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost("stop/{orderItemId}")]
-        public async Task<IActionResult> StopService(Guid orderItemId)
+        public async Task<IActionResult> StopService(Guid orderItemId, Guid TenantId)
         {
             try
             {
-                await _salesServiceUsageGateway.StopServiceAsync(orderItemId);
+                await _salesServiceUsageGateway.StopServiceAsync(orderItemId, TenantId);
                 return Ok();
             }
             catch (Exception ex)
@@ -62,11 +62,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet("{orderItemId}")]
-        public async Task<IActionResult> GetServiceUsage(Guid orderItemId)
+        public async Task<IActionResult> GetServiceUsage(Guid orderItemId, Guid TenantId)
         {
             try
             {
-                var serviceUsage = await _salesServiceUsageGateway.GetServiceUsageByOrderItemIdAsync(orderItemId);
+                var serviceUsage = await _salesServiceUsageGateway.GetServiceUsageByOrderItemIdAsync(orderItemId, TenantId);
                 return Ok(serviceUsage);
             }
             catch (Exception ex)

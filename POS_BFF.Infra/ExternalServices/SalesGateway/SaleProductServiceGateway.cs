@@ -12,6 +12,8 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using POS_BFF.Core.Domain.Gateways.Authentication;
+using POS_BFF.Core.Domain.Entities;
 
 namespace POS_BFF.Infra.ExternalServices.SalesGateway
 {
@@ -22,6 +24,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationPublisher _notificationPublisher;
+        private readonly IAuthenticationTenantGateway _authenticationTenantGateway;
         private readonly HashSet<string> _notifiedProducts = new HashSet<string>();
 
         public SaleProductServiceGateway(
@@ -29,13 +32,15 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             IConfiguration configuration,
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor,
-            INotificationPublisher notificationPublisher)
+            INotificationPublisher notificationPublisher,
+            IAuthenticationTenantGateway authenticationTenantGateway)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
             _notificationPublisher = notificationPublisher;
+            _authenticationTenantGateway = authenticationTenantGateway;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
@@ -47,50 +52,71 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             return httpClient;
         }
 
-        public async Task<Guid> AddProductAsync(PhysiqueProductDTO productDto)
+        public async Task<Guid> AddProductAsync(PhysiqueProductDTO productDto, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsJsonAsync("api/Product/physical", productDto);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Guid>();
         }
-        public async Task<Guid> AddServicetAsync(VirtualProductDTO productDto)
+        public async Task<Guid> AddServicetAsync(VirtualProductDTO productDto, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsJsonAsync("api/Product/service", productDto);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Guid>();
         }
 
-        public async Task<bool> UpdateProductAsync(Guid id, PhysiqueProductDTO productDto)
+        public async Task<bool> UpdateProductAsync(Guid id, PhysiqueProductDTO productDto, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateProduct", productDto);
             return response.IsSuccessStatusCode;
         }
-        public async Task<bool> UpdateServiceAsync(Guid id, VirtualProductDTO serviceDto)
+        public async Task<bool> UpdateServiceAsync(Guid id, VirtualProductDTO serviceDto, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PutAsJsonAsync($"api/Product/{id}/updateService", serviceDto);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> DeleteProductAsync(Guid id)
+        public async Task<bool> DeleteProductAsync(Guid id, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.DeleteAsync($"api/Product/deleteProduct/{id}");
             return response.IsSuccessStatusCode;
         }
-        public async Task<bool> DeleteServiceAsync(Guid id)
+        public async Task<bool> DeleteServiceAsync(Guid id, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.DeleteAsync($"api/Product/deleteService/{id}");
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<PhysiqueProductDTO> GetProductById(Guid id)
+        public async Task<PhysiqueProductDTO> GetProductById(Guid id, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Product/PhysiqueProduct/{id}");
             if (response.IsSuccessStatusCode)
             {
@@ -99,9 +125,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<PhysiqueProductDTO> GetProductByBarCode(string barcode)
+        public async Task<PhysiqueProductDTO> GetProductByBarCode(string barcode, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Product/getbybarcode/{barcode}");
             if (response.IsSuccessStatusCode)
             {
@@ -109,9 +138,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
-        public async Task<VirtualProductDTO> GetServiceById(Guid id)
+        public async Task<VirtualProductDTO> GetServiceById(Guid id, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Product/VirtualProduct/{id}");
             if (response.IsSuccessStatusCode)
             {
@@ -120,9 +152,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync()
+        public async Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync(Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync("api/Product/products");
             if (response.IsSuccessStatusCode)
             {
@@ -130,9 +165,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
-        public async Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync()
+        public async Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync(Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync("api/Product/services");
             if (response.IsSuccessStatusCode)
             {
@@ -141,9 +179,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid)
+        public async Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Sales/GetVirtualProduct/{serviceid}");
             if (response.IsSuccessStatusCode)
             {
@@ -152,9 +193,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid)
+        public async Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Sales/GetPhysiqueProduct/{productid}");
             if (response.IsSuccessStatusCode)
             {
@@ -163,9 +207,10 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task CheckAndNotifyStockAsync()
+        public async Task CheckAndNotifyStockAsync(Guid TenantId)
         {
-            var products = await GetAllProductsAsync();
+
+            var products = await GetAllProductsAsync(TenantId);
 
             var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
             var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&
@@ -193,11 +238,11 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
         }
 
-        public async Task<List<string>> GetNotifyStockAsync()
+        public async Task<List<string>> GetNotifyStockAsync(Guid TenantId)
         {
             var notifications = new List<string>();
 
-            var products = await GetAllProductsAsync();
+            var products = await GetAllProductsAsync(TenantId);
 
             var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
             var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&

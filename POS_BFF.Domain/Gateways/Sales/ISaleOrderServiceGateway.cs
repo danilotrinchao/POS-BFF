@@ -10,11 +10,11 @@ namespace POS_BFF.Core.Domain.Gateways.Sales
 {
     public interface ISaleOrderServiceGateway
     {
-        Task<Guid> CreateSaleAsync(SaleDTO saleDto);
-        Task<SaleDTO> GetSaleByIdAsync(Guid id);
-        Task<IEnumerable<SaleDTO>> GetAllSalesAsync();
-        Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO);
-        Task<bool> CancelSaleAsync(Guid id);
-        Task<Dictionary<EPaymentType, decimal>> GetDailyTotals();
+        Task<Guid> CreateSaleAsync(SaleDTO saleDto, Guid TenantId);
+        Task<SaleDTO> GetSaleByIdAsync(Guid id, Guid TenantId);
+        Task<IEnumerable<SaleDTO>> GetAllSalesAsync(Guid TenantId);
+        Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO, Guid TenantId);
+        Task<bool> CancelSaleAsync(Guid id, Guid TenantId);
+        Task<Dictionary<EPaymentType, decimal>> GetDailyTotals(Guid TenantId);
     }
 }

@@ -1,12 +1,8 @@
-﻿using POS_BFF.Core.Domain.Gateways.Sales;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using POS_BFF.Core.Domain.Gateways.Authentication;
+using POS_BFF.Core.Domain.Gateways.Sales;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace POS_BFF.Infra.ExternalServices.SalesGateway
 {
@@ -15,14 +11,17 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IAuthenticationTenantGateway _authenticationTenantGateway;
 
         public SalesServiceUsageGateway(IHttpClientFactory httpClientFactory,
                                         IConfiguration configuration,
-                                        IHttpContextAccessor httpContextAccessor)
+                                        IHttpContextAccessor httpContextAccessor,
+                                        IAuthenticationTenantGateway authenticationTenantGateway)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _authenticationTenantGateway = authenticationTenantGateway;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
@@ -33,30 +32,42 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             return httpClient;
         }
 
-        public async Task StartServiceAsync(Guid orderItemId)
+        public async Task StartServiceAsync(Guid orderItemId, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsync($"api/serviceusage/start/{orderItemId}", null);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task PauseServiceAsync(Guid orderItemId)
+        public async Task PauseServiceAsync(Guid orderItemId, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsync($"api/serviceusage/pause/{orderItemId}", null);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task StopServiceAsync(Guid orderItemId)
+        public async Task StopServiceAsync(Guid orderItemId, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsync($"api/serviceusage/stop/{orderItemId}", null);
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<dynamic> GetServiceUsageByOrderItemIdAsync(Guid orderItemId)
+        public async Task<dynamic> GetServiceUsageByOrderItemIdAsync(Guid orderItemId, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/serviceusage/{orderItemId}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<dynamic>();

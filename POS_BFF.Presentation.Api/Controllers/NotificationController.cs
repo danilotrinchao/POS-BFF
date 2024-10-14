@@ -25,7 +25,7 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet("stream")]
-        public async Task StreamNotifications()
+        public async Task StreamNotifications(Guid TenantId)
         {
             Response.ContentType = "text/event-stream";
             Response.Headers.Add("Cache-Control", "no-cache");
@@ -35,7 +35,7 @@ namespace POS_BFF.Presentation.Api.Controllers
             while (!HttpContext.RequestAborted.IsCancellationRequested)
             {
                 // Notificações de produtos
-                var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync();
+                var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync(TenantId);
                 var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
 
                 foreach (var notification in productNotifications.Concat(servicesNotifications))

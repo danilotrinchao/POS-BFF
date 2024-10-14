@@ -17,12 +17,12 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSale([FromBody] SaleDTO saleDto)
+        public async Task<IActionResult> CreateSale([FromBody] SaleDTO saleDto, Guid tenantId)
         {
             try
             {
 
-                var saleId = await _salesOrderServiceGateway.CreateSaleAsync(saleDto);
+                var saleId = await _salesOrderServiceGateway.CreateSaleAsync(saleDto, tenantId);
                 return CreatedAtAction(nameof(GetSaleById), new { id = saleId }, null);
             }
             catch (Exception ex)
@@ -32,11 +32,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSaleById(Guid id)
+        public async Task<IActionResult> GetSaleById(Guid id, Guid TenantId)
         {
             try
             {
-                var sale = await _salesOrderServiceGateway.GetSaleByIdAsync(id);
+                var sale = await _salesOrderServiceGateway.GetSaleByIdAsync(id, TenantId);
                 if (sale == null)
                 {
                     return NotFound();
@@ -50,11 +50,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllSales()
+        public async Task<IActionResult> GetAllSales(Guid tenantId)
         {
             try
             {
-                var sales = await _salesOrderServiceGateway.GetAllSalesAsync();
+                var sales = await _salesOrderServiceGateway.GetAllSalesAsync(tenantId);
                 return Ok(sales);
             }
             catch (Exception ex)
@@ -64,11 +64,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPut("{id}/complete")]
-        public async Task<IActionResult> CompleteSale(Guid id, [FromBody] SaleDTO saleDTO)
+        public async Task<IActionResult> CompleteSale(Guid id, Guid tenantId, [FromBody] SaleDTO saleDTO)
         {
             try
             {
-                var result = await _salesOrderServiceGateway.CompleteSaleAsync(id, saleDTO);
+                var result = await _salesOrderServiceGateway.CompleteSaleAsync(id, saleDTO, tenantId);
                 if (!result)
                 {
                     return NotFound();
@@ -82,11 +82,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPut("{id}/cancel")]
-        public async Task<IActionResult> CancelSale(Guid id)
+        public async Task<IActionResult> CancelSale(Guid id, Guid tenantId)
         {
             try
             {
-                var result = await _salesOrderServiceGateway.CancelSaleAsync(id);
+                var result = await _salesOrderServiceGateway.CancelSaleAsync(id, tenantId);
                 if (!result)
                 {
                     return NotFound();

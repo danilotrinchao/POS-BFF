@@ -18,11 +18,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost("product")]
-        public async Task<IActionResult> AddProduct(PhysiqueProductDTO productDto)
+        public async Task<IActionResult> AddProduct(PhysiqueProductDTO productDto, Guid TenantId)
         {
             if (ModelState.IsValid)
             {
-                var result = await _saleProductServiceGateway.AddProductAsync(productDto);
+                var result = await _saleProductServiceGateway.AddProductAsync(productDto, TenantId);
                 if (result == null)
                 {
                     return Ok(result);
@@ -33,11 +33,11 @@ namespace POS_BFF.Presentation.Api.Controllers
             return BadRequest();
         }
         [HttpPost("service")]
-        public async Task<IActionResult> AddService(VirtualProductDTO productDto)
+        public async Task<IActionResult> AddService(VirtualProductDTO productDto, Guid TenantId)
         {
             if (ModelState.IsValid)
             {
-                var result = await _saleProductServiceGateway.AddServicetAsync(productDto);
+                var result = await _saleProductServiceGateway.AddServicetAsync(productDto, TenantId);
                 if (result == null)
                 {
                     return Ok(result);
@@ -49,11 +49,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPut("editProduct")]
-        public async Task<IActionResult> EditProduct(PhysiqueProductDTO productDto)
+        public async Task<IActionResult> EditProduct(PhysiqueProductDTO productDto, Guid TenantId)
         {
             if (ModelState.IsValid)
             {
-                var success = await _saleProductServiceGateway.UpdateProductAsync(productDto.Id, productDto);
+                var success = await _saleProductServiceGateway.UpdateProductAsync(productDto.Id, productDto, TenantId);
                 if (success)
                 {
                     return Ok(success);
@@ -63,11 +63,11 @@ namespace POS_BFF.Presentation.Api.Controllers
             return Ok(productDto);
         }
         [HttpPut("editService")]
-        public async Task<IActionResult> EditService(VirtualProductDTO productDto)
+        public async Task<IActionResult> EditService(VirtualProductDTO productDto, Guid TenantId)
         {
             if (ModelState.IsValid)
             {
-                var success = await _saleProductServiceGateway.UpdateServiceAsync(productDto.Id, productDto);
+                var success = await _saleProductServiceGateway.UpdateServiceAsync(productDto.Id, productDto, TenantId);
                 if (success)
                 {
                     return Ok(success);
@@ -78,9 +78,9 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpDelete("deleteProduct")]
-        public async Task<IActionResult> DeleteProduct(Guid id)
+        public async Task<IActionResult> DeleteProduct(Guid id, Guid TenantId)
         {
-            var success = await _saleProductServiceGateway.DeleteProductAsync(id);
+            var success = await _saleProductServiceGateway.DeleteProductAsync(id, TenantId);
             if (success)
             {
                 return Ok(success);
@@ -88,9 +88,9 @@ namespace POS_BFF.Presentation.Api.Controllers
             return NotFound();
         }
         [HttpDelete("deleteService")]
-        public async Task<IActionResult> DeleteService(Guid id)
+        public async Task<IActionResult> DeleteService(Guid id, Guid TenantId)
         {
-            var success = await _saleProductServiceGateway.DeleteServiceAsync(id);
+            var success = await _saleProductServiceGateway.DeleteServiceAsync(id, TenantId);
             if (success)
             {
                 return Ok(success);
@@ -98,9 +98,9 @@ namespace POS_BFF.Presentation.Api.Controllers
             return NotFound();
         }
         [HttpGet("GetProductByCodeBar")]
-        public async Task<IActionResult> GetProductByCodeBar(string barcode)
+        public async Task<IActionResult> GetProductByCodeBar(string barcode, Guid TenantId)
         {
-            var product = await _saleProductServiceGateway.GetProductByBarCode(barcode);
+            var product = await _saleProductServiceGateway.GetProductByBarCode(barcode, TenantId);
             if (product == null)
             {
                 return NotFound();
@@ -109,9 +109,9 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet("GetProductById")]
-        public async Task<IActionResult> GetProduct(Guid id )
+        public async Task<IActionResult> GetProduct(Guid id , Guid TenantId)
         {
-            var product = await _saleProductServiceGateway.GetProductById(id);
+            var product = await _saleProductServiceGateway.GetProductById(id, TenantId);
             if (product == null)
             {
                 return NotFound();
@@ -119,9 +119,9 @@ namespace POS_BFF.Presentation.Api.Controllers
             return Ok(product);
         }
         [HttpGet("GetServiceById")]
-        public async Task<IActionResult> GetService(Guid id)
+        public async Task<IActionResult> GetService(Guid id, Guid TenantId)
         {
-            var product = await _saleProductServiceGateway.GetServiceById(id);
+            var product = await _saleProductServiceGateway.GetServiceById(id, TenantId);
             if (product == null)
             {
                 return NotFound();
@@ -130,15 +130,15 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet("AllProducts")]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts(Guid TenantId)
         {
-            var products = await _saleProductServiceGateway.GetAllProductsAsync();
+            var products = await _saleProductServiceGateway.GetAllProductsAsync(TenantId);
             return Ok(products);
         }
         [HttpGet("AllServices")]
-        public async Task<IActionResult> GetAllServices()
+        public async Task<IActionResult> GetAllServices(Guid TenantId)
         {
-            var products = await _saleProductServiceGateway.GetAllServicesAsync();
+            var products = await _saleProductServiceGateway.GetAllServicesAsync(TenantId);
             return Ok(products);
         }
     }

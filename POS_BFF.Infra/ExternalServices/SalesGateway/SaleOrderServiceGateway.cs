@@ -9,6 +9,7 @@ using POS_BFF.Domain.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
+using POS_BFF.Core.Domain.Gateways.Authentication;
 
 namespace POS_BFF.Infra.ExternalServices.SalesGateway
 {
@@ -21,6 +22,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
         private readonly IUserRepository _userRepository;
         private readonly ICashierOrderServiceGateway _cashierOrderServiceGateway;
         private readonly IConsumerServiceRepository _consumerServiceRepository;
+        private readonly IAuthenticationTenantGateway _authenticationTenantGateway;
 
         public SalesOrderServiceGateway(IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
@@ -29,7 +31,8 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             ISaleProductServiceGateway saleProductServiceGateway,
             IUserRepository userRepository,
             ICashierOrderServiceGateway cashierOrderServiceGateway,
-            IConsumerServiceRepository consumerServiceRepository)
+            IConsumerServiceRepository consumerServiceRepository,
+            IAuthenticationTenantGateway authenticationTenantGateway)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
@@ -38,6 +41,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             _userRepository = userRepository;
             _cashierOrderServiceGateway = cashierOrderServiceGateway;
             _consumerServiceRepository = consumerServiceRepository;
+            _authenticationTenantGateway = authenticationTenantGateway;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
@@ -50,18 +54,24 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             return httpClient;
         }
 
-        public async Task<Guid> CreateSaleAsync(SaleDTO saleDto)
+        public async Task<Guid> CreateSaleAsync(SaleDTO saleDto, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsJsonAsync("api/Sales", saleDto);
             response.EnsureSuccessStatusCode();
             var saleId = await response.Content.ReadFromJsonAsync<Guid>();
             return saleId;
         }
 
-        public async Task<SaleDTO> GetSaleByIdAsync(Guid id)
+        public async Task<SaleDTO> GetSaleByIdAsync(Guid id, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Sales/{id}");
             if (response.IsSuccessStatusCode)
             {
@@ -69,9 +79,11 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
-        public async Task<List<OrderItems>> GetOrderItemsByOrder(Guid orderid)
+        public async Task<List<OrderItems>> GetOrderItemsByOrder(Guid orderid, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             var response = await httpClient.GetAsync($"api/Sales/{orderid}/items");
             if (response.IsSuccessStatusCode)
             {
@@ -79,9 +91,11 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
-        public async Task<IEnumerable<SaleDTO>> GetAllSalesAsync()
+        public async Task<IEnumerable<SaleDTO>> GetAllSalesAsync(Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             var response = await httpClient.GetAsync("api/Sales");
             if (response.IsSuccessStatusCode)
             {
@@ -90,13 +104,15 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO)
+        public async Task<bool> CompleteSaleAsync(Guid id, SaleDTO saleDTO, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", saleDTO); 
             if (response.IsSuccessStatusCode)
             {
-                var items = await GetOrderItemsByOrder(id);
+                var items = await GetOrderItemsByOrder(id, TenantId);
                 
                 
                 foreach (var item in items)
@@ -104,7 +120,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
                     
                     if(item.ProductType == EProductType.VirtualProduct)
                     {
-                        var service = await _saleProductServiceGateway.GetServiceById(item.ProductId);
+                        var service = await _saleProductServiceGateway.GetServiceById(item.ProductId, TenantId);
                         if(service.IsComputer == true)
                         {
                            item.Quantity += await _userRepository.GetAvailableTime(saleDTO.ClientId);
@@ -126,16 +142,20 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> CancelSaleAsync(Guid id)
+        public async Task<bool> CancelSaleAsync(Guid id, Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/cancel", id);
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<Dictionary<EPaymentType, decimal>> GetDailyTotals()
+        public async Task<Dictionary<EPaymentType, decimal>> GetDailyTotals(Guid TenantId)
         {
             var httpClient = await CreateHttpClientAsync();
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             var response = await httpClient.GetAsync("api/Sales/daily-totals");
             if (response.IsSuccessStatusCode)
             {
