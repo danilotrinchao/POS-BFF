@@ -100,10 +100,10 @@ builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway
 builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
 builder.Services.AddTransient<IAuthenticationTenantGateway, AuthenticationTenantGateway>();
 builder.Services.AddTransient<ICompanyEmployeerGateway, CompanyEmployeerGateway>();
-builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("http://localhost:7250/"));
-builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("http://localhost:7209/"));
-builder.Services.AddHttpClient("AuthenticationApi", c => c.BaseAddress = new Uri("http://localhost:7278/"));
-builder.Services.AddHttpClient("CompanyApi", c => c.BaseAddress = new Uri("https://localhost:7223/"));
+builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("https://salesservice-production.up.railway.app/"));
+builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("https://cashierservice-production.up.railway.app/"));
+builder.Services.AddHttpClient("AuthenticationApi", c => c.BaseAddress = new Uri("https://authenticationapi-production-9b49.up.railway.app/"));
+builder.Services.AddHttpClient("CompanyApi", c => c.BaseAddress = new Uri("https://companyapi-production.up.railway.app/"));
 
 // Register the background service
 builder.Services.AddHostedService<StockBackgroundService>();
