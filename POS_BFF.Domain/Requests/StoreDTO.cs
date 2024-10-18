@@ -11,7 +11,7 @@ namespace POS_BFF.Core.Domain.Requests
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; }
         public Guid CompanyId { get; set; }
-        public Company Company { get; set; }
+        public CompanyDTO Company { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
