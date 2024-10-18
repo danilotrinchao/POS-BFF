@@ -23,7 +23,8 @@ RUN ls -la /src/POS_BFF.Presentation.Api
 WORKDIR "/src/POS_BFF.Presentation.Api"
 
 # Builda o projeto de apresentação
-RUN dotnet build "POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build
+
 
 # Publica o projeto
 FROM build AS publish
