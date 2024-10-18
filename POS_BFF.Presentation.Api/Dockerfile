@@ -13,22 +13,21 @@ COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 # Restaura os pacotes
 RUN dotnet restore "POS_BFF.sln"
 
+# Verifica se os arquivos estão presentes
+RUN ls -la /src
+
 # Copia o resto do código para o container
 COPY . .
-
-# Verifica se o arquivo .csproj está presente
-RUN ls -la /src/POS_BFF.Presentation.Api
 
 # Define a pasta de trabalho como a do projeto de apresentação
 WORKDIR "/src/POS_BFF.Presentation.Api"
 
-# Builda o projeto de apresentação
+# Builda a solução completa
 RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build
 
-
-# Publica o projeto
+# Publica a solução completa
 FROM build AS publish
-RUN dotnet publish "POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Usa a imagem base para rodar a aplicação
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
