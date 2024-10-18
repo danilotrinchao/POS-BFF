@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Copia o arquivo de solução e restaura dependências
-COPY ["POS_BFF.sln", "."]  # Certifique-se de que o arquivo .sln esteja no diretório raiz do contexto de construção
+# Copia o arquivo de solução
+COPY ["POS_BFF.sln", "."]  # Verifique se o arquivo de solução está neste local
 COPY ["POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj", "POS_BFF.Presentation.Api/"]
 COPY ["POS_BFF.Application/POS_BFF.Application.csproj", "POS_BFF.Application/"]
 COPY ["POS_BFF.Core/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
