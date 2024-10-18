@@ -1,6 +1,6 @@
 [build]
 builder = "dockerfile"
-dockerfilePath = "./POS_BFF.Api/Dockerfile"
+dockerfilePath = "./POS_BFF.Presentation.Api/Dockerfile"
 
 [deploy]
 startCommand = "./POS_BFF.Presentation.Api"
