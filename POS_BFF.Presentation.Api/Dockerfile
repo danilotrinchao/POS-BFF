@@ -7,7 +7,7 @@ WORKDIR /src
 COPY ["POS_BFF.sln", "."]  # Verifique se o arquivo de solução está neste local
 COPY ["POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj", "POS_BFF.Presentation.Api/"]
 COPY ["POS_BFF.Application/POS_BFF.Application.csproj", "POS_BFF.Application/"]
-COPY ["POS_BFF.Core/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
+COPY ["POS_BFF.Domain/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
 COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 
 # Restaura os pacotes
