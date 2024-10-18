@@ -125,15 +125,22 @@ builder.Services.AddMvc(options =>
     options.SuppressAsyncSuffixInActionNames = false;
 });
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8000";
+builder.WebHost.UseUrls($"http://*:{port}");
+
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    c.RoutePrefix = string.Empty; // Define a página raiz como o Swagger
+});
 
+
+app.UseHealthChecks("/health");
 app.UseCors("AllowAllOrigins");
 //app.UseHttpsRedirection();
 
