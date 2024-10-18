@@ -10,7 +10,7 @@ COPY ["POS_BFF.Domain/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
 COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 
 # Restore dependencies
-RUN dotnet restore "POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj"
+RUN dotnet restore "POS_BFF.sln"
 
 # Copy the rest of the source code
 COPY . .
