@@ -3,27 +3,29 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Copy project files
+# Copia o arquivo de solução e restaura dependências
+COPY ["POS_BFF.sln", "."]  # Certifique-se de que o arquivo .sln esteja no diretório raiz do contexto de construção
 COPY ["POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj", "POS_BFF.Presentation.Api/"]
 COPY ["POS_BFF.Application/POS_BFF.Application.csproj", "POS_BFF.Application/"]
-COPY ["POS_BFF.Domain/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
+COPY ["POS_BFF.Core/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
 COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 
-# Restore dependencies
+# Restaura os pacotes
 RUN dotnet restore "POS_BFF.sln"
 
-# Copy the rest of the source code
+# Copia o resto do código para o container
 COPY . .
 
-# Build the application
+# Define a pasta de trabalho como a do projeto de apresentação
 WORKDIR "/src/POS_BFF.Presentation.Api"
+
+# Builda o projeto de apresentação
 RUN dotnet build "POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Publish the application
+# Publica o projeto
 FROM build AS publish
 RUN dotnet publish "POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Final image to run the application
 # Usa a imagem base para rodar a aplicação
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
