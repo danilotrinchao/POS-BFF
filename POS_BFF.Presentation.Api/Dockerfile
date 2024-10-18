@@ -24,8 +24,8 @@ FROM build AS publish
 RUN dotnet publish "POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Final image to run the application
-FROM base AS final
+# Usa a imagem base para rodar a aplicação
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-#ENTRYPOINT ["dotnet", "POS_BFF.Presentation.Api.dll"]
-CMD ASPNETCORE_URLS="http://*:$PORT" dotnet POS_BFF.Presentation.Api.dll
+ENTRYPOINT ["dotnet", "POS_BFF.Presentation.Api.dll"]
