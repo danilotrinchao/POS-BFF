@@ -4,10 +4,10 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copia o arquivo de solução
-COPY ["POS_BFF.sln", "."]  
+COPY ["POS_BFF.sln", "."]
 COPY ["POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj", "POS_BFF.Presentation.Api/"]
 COPY ["POS_BFF.Application/POS_BFF.Application.csproj", "POS_BFF.Application/"]
-COPY ["POS_BFF.Domain/POS_BFF.Core.Domain.csproj", "POS_BFF.Domain/"]
+COPY ["POS_BFF.Core/POS_BFF.Core.Domain.csproj", "POS_BFF.Core/"]
 COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 
 # Restaura os pacotes
@@ -15,6 +15,9 @@ RUN dotnet restore "POS_BFF.sln"
 
 # Copia o resto do código para o container
 COPY . .
+
+# Verifica se o arquivo .csproj está presente
+RUN ls -la /src/POS_BFF.Presentation.Api
 
 # Define a pasta de trabalho como a do projeto de apresentação
 WORKDIR "/src/POS_BFF.Presentation.Api"
