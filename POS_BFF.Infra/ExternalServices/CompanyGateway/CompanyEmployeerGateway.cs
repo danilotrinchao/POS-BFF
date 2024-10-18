@@ -1,62 +1,46 @@
-﻿using POS_BFF.Core.Domain.Gateways.Sales;
-using POS_BFF.Core.Domain.Requets;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http.Json;
-using System.Net.Http;
-using POS_BFF.Application.Contracts;
-using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Http;
 using POS_BFF.Core.Domain.Gateways.Authentication;
-using POS_BFF.Core.Domain.Entities;
+using POS_BFF.Core.Domain.Gateways.Company;
+using POS_BFF.Core.Domain.Requests;
+using POS_BFF.Core.Domain.Requets;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
 
-
-namespace POS_BFF.Infra.ExternalServices.SalesGateway
+namespace POS_BFF.Infra.ExternalServices.CompanyGateway
 {
-    public class SalesClientServiceGateway : ISaleClientServiceGateway
+    public class CompanyEmployeerGateway: ICompanyEmployeerGateway
     {
-        private static IHttpClientFactory _httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
-        private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthenticationTenantGateway _authenticationTenantGateway;
-        public SalesClientServiceGateway(
-            IHttpClientFactory httpClientFactory,
+
+        public CompanyEmployeerGateway(IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
-            IAuthService authService,
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationTenantGateway authenticationTenantGateway)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
-            _authService = authService;
             _httpContextAccessor = httpContextAccessor;
             _authenticationTenantGateway = authenticationTenantGateway;
         }
 
         private async Task<HttpClient> CreateHttpClientAsync()
         {
-            var baseAddress = _configuration["SalesApi:baseAddress"];
-            var httpClient = _httpClientFactory.CreateClient("SalesServiceClient");
+            var baseAddress = _configuration["AuthenticationApi:baseAddress"];
+            var httpClient = _httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(baseAddress);
-            var token = _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];
-
-            // Incluir o token no cabeçalho de autorização das requisições HTTP
-            // httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            // Adicionar cabeçalho de autorização
-
-            if (!string.IsNullOrEmpty(token))
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                throw new UnauthorizedAccessException("Unable to obtain the authentication token.");
-            }
-
             return httpClient;
         }
 
-        public async Task<Guid> CreateClientAsync(ClientRequest client, Guid TenantId)
+        public async Task<Guid> CreateEmployeer(EmployeerDTO employeer, Guid TenantId)
         {
             try
             {
@@ -64,9 +48,9 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.PostAsJsonAsync("api/Client", client);
+                var response = await httpClient.PostAsJsonAsync("api/createEmployeer", employeer);
                 response.EnsureSuccessStatusCode();
-                var createdClient = await response.Content.ReadFromJsonAsync<ClientRequest>();
+                var createdClient = await response.Content.ReadFromJsonAsync<EmployeerDTO>();
                 return createdClient?.Id ?? Guid.NewGuid();
             }
             catch (Exception ex)
@@ -76,7 +60,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
         }
 
-        public async Task<ClientRequest> GetClientByIdAsync(Guid id, Guid TenantId)
+        public async Task<EmployeerDTO> GetEmployeerById(Guid id, Guid TenantId)
         {
             try
             {
@@ -84,10 +68,31 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.GetAsync($"api/Client/{id}");
+                var response = await httpClient.GetAsync($"employeer/{id}");
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<ClientRequest>();
+                    return await response.Content.ReadFromJsonAsync<EmployeerDTO>();
+                }
+                throw new HttpRequestException(response.ReasonPhrase);
+            }
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<EmployeerDTO> GetEmployeerByEmail(string email, Guid TenantId)
+        {
+            try
+            {
+                var httpClient = await CreateHttpClientAsync();
+                var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
+                httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+                httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
+                var response = await httpClient.GetAsync($"email/{email}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<EmployeerDTO>();
                 }
                 throw new HttpRequestException(response.ReasonPhrase);
             }
@@ -98,7 +103,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
         }
 
-        public async Task<IEnumerable<ClientRequest>> GetAllClientsAsync(Guid TenantId)
+        public async Task<IEnumerable<EmployeerDTO>> GetAllEmployeers(Guid TenantId)
         {
             try
             {
@@ -106,10 +111,10 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.GetAsync("api/Client");
+                var response = await httpClient.GetAsync("/getAllEmployeers");
                 if (response.IsSuccessStatusCode)
                 {
-                    return await response.Content.ReadFromJsonAsync<IEnumerable<ClientRequest>>();
+                    return await response.Content.ReadFromJsonAsync<IEnumerable<EmployeerDTO>>();
                 }
                 throw new HttpRequestException(response.ReasonPhrase);
             }
@@ -120,7 +125,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             }
         }
 
-        public async Task<bool> UpdateClientAsync(ClientRequest client, Guid TenantId)
+        public async Task<bool> UpdateEmployeerAsync(EmployeerDTO employeer, Guid TenantId)
         {
             try
             {
@@ -128,7 +133,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.PutAsJsonAsync($"api/Client/{client.Id}", client);
+                var response = await httpClient.PutAsJsonAsync($"api/updateEmployeer/{employeer.Id}", employeer);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -157,5 +162,5 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
         }
     }
 
-
+}
 }

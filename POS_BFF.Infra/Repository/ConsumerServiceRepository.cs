@@ -2,90 +2,147 @@
 using POS_BFF.Core.Domain.Repositories;
 using Dapper;
 using System.Data;
+using Npgsql;
 
 namespace POS_BFF.Infra.Repository
 {
     public class ConsumerServiceRepository : IConsumerServiceRepository
     {
-        private readonly IDbConnection _dbConnection;
-
-        public ConsumerServiceRepository(IDbConnection dbConnection)
+        private IDbConnection CreateConnection()
         {
-            _dbConnection = dbConnection;
+            // Função para criar a conexão com a string de conexão apropriada para o tenant
+            var connectionString = TenantContext.GetConnectionString();
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("Connection string is missing.");
+            }
+            return new NpgsqlConnection(connectionString);
         }
 
         public async Task<Guid> CreateConsumerService(ConsumerService consumer)
         {
-            var query = @"
-                            INSERT INTO ""consumerservice"" 
-                            (""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"")
-                            VALUES (@id, @userId, @orderId, @serviceId, @is_Active, @totalTime, @serviceName)";
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
 
-            consumer.id = Guid.NewGuid();
-            await _dbConnection.ExecuteAsync(query, consumer);
-            return consumer.id;
+                var query = $@"
+                INSERT INTO ""{schema}"".""consumerservice"" 
+                (""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"")
+                VALUES (@id, @userId, @orderId, @serviceId, @is_Active, @totalTime, @serviceName)";
+
+                consumer.id = Guid.NewGuid();
+                await connection.ExecuteAsync(query, consumer);
+                return consumer.id;
+            }
         }
 
         public async Task<bool> DeleteConsumerService(Guid consumerId)
         {
-            var query = @"DELETE FROM ""ConsumerService"" WHERE ""id"" = @id";
-            var rowsAffected = await _dbConnection.ExecuteAsync(query, new { id = consumerId });
-            return rowsAffected > 0;
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"DELETE FROM ""{schema}"".""consumerservice"" WHERE ""id"" = @id";
+                var rowsAffected = await connection.ExecuteAsync(query, new { id = consumerId });
+                return rowsAffected > 0;
+            }
         }
 
         public async Task<IEnumerable<ConsumerService>> GetAllConsumerService()
         {
-            var query = @"SELECT * FROM ""ConsumerService""";
-            var result = await _dbConnection.QueryAsync<ConsumerService>(query);
-            return result;
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"SELECT * FROM ""{schema}"".""consumerservice""";
+                var result = await connection.QueryAsync<ConsumerService>(query);
+                return result;
+            }
         }
 
         public async Task<IEnumerable<ConsumerService>> GetConsumerServiceByUserId(int userId)
         {
-            var query = @"SELECT ""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"" FROM ""consumerservice"" WHERE ""userid"" = @userid";
-            //var query = @"SELECT ""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"" FROM ""consumerservice"" WHERE ""userid"" = @userid AND  ""is_active"" = true ";
-            var result = await _dbConnection.QueryAsync<ConsumerService>(query, new { id = userId });
-            return result;
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"SELECT ""id"", ""userid"", ""orderid"", ""serviceid"", ""is_active"", ""totaltime"", ""servicename"" 
+                           FROM ""{schema}"".""consumerservice"" 
+                           WHERE ""userid"" = @userid";
+
+                var result = await connection.QueryAsync<ConsumerService>(query, new { userid = userId });
+                return result;
+            }
         }
+
         public async Task<ConsumerService> GetConsumerServiceById(Guid id)
         {
-            var query = @"SELECT * FROM ""consumerservice"" WHERE ""id"" = @id";
-            var result = await _dbConnection.QuerySingleAsync<ConsumerService>(query, new { id = id });
-            return result;
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"SELECT * FROM ""{schema}"".""consumerservice"" WHERE ""id"" = @id";
+                var result = await connection.QuerySingleAsync<ConsumerService>(query, new { id = id });
+                return result;
+            }
         }
 
         public async Task<bool> UpdateConsumerService(ConsumerService consumer)
         {
-            var query = @"
-                            UPDATE ""consumerservice"" 
-                            SET 
-                                ""userid"" = @userId, 
-                                ""orderid"" = @orderId, 
-                                ""servicename"" = @serviceName, 
-                                ""is_active"" = @is_Active, 
-                                ""totaltime"" = @totalTime
-                            WHERE ""id"" = @id";
-            var rowsAffected = await _dbConnection.ExecuteAsync(query, consumer);
-            return rowsAffected > 0;
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"
+                UPDATE ""{schema}"".""consumerservice"" 
+                SET 
+                    ""userid"" = @userId, 
+                    ""orderid"" = @orderId, 
+                    ""servicename"" = @serviceName, 
+                    ""is_active"" = @is_Active, 
+                    ""totaltime"" = @totalTime
+                WHERE ""id"" = @id";
+
+                var rowsAffected = await connection.ExecuteAsync(query, consumer);
+                return rowsAffected > 0;
+            }
         }
 
         public async Task<IEnumerable<ConsumerService>> GetActiveConsumerServicesAsync()
         {
-            var query = @"
-            SELECT * 
-            FROM ""consumerservice"" 
-            WHERE ""is_active"" = true";
-            var result = await _dbConnection.QueryAsync<ConsumerService>(query);
-            return result;
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"SELECT * 
+                           FROM ""{schema}"".""consumerservice"" 
+                           WHERE ""is_active"" = true";
+                var result = await connection.QueryAsync<ConsumerService>(query);
+                return result;
+            }
         }
 
         public async Task UpdateElapsedTimeAsync(Guid consumerId)
         {
-            var query = @"
-            UPDATE ""consumerservice"" 
+            using (var connection = CreateConnection())
+            {
+                var schema = TenantContext.GetSchema();  // Recupera o schema do TenantContext
+                connection.Open();
+
+                var query = $@"
+            UPDATE ""{schema}"".""consumerservice"" 
             SET ""totaltime"" = EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - ""starttime""))
             WHERE ""id"" = @id";
-            await _dbConnection.ExecuteAsync(query, new { id = consumerId });
+                await connection.ExecuteAsync(query, new { id = consumerId });
+            }
         }
     }
+
 }

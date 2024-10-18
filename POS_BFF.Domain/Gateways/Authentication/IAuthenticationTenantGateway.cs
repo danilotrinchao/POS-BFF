@@ -1,4 +1,5 @@
-﻿using System;
+﻿using POS_BFF.Core.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace POS_BFF.Core.Domain.Gateways.Authentication
 {
     public interface IAuthenticationTenantGateway
     {
-        Task<string> GetConnectionStringByTenantIdAsync(Guid tenantId);
+        Task<Tenant> GetConnectionStringByTenantIdAsync(Guid tenantId);
     }
 }

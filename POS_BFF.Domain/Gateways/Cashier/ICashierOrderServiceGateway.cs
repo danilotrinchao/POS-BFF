@@ -10,10 +10,10 @@ namespace POS_BFF.Core.Domain.Gateways.Cashier
 {
     public interface ICashierOrderServiceGateway
     {
-        Task<Guid> OpenCashier(decimal InitialBalance, int EmployeerId, Guid TentantId);
-        Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals, Guid TentantId);
+        Task<Guid> OpenCashier(decimal InitialBalance, Guid EmployeerId, Guid TentantId);
+        Task<bool> CloseCashier(Guid employeerId, Dictionary<EPaymentType, decimal> totals, Guid TentantId);
         Task<bool> GetOpenedCashier( Guid TentantId);
-        Task<bool> GetOpenedCashierByEmployeerId(int employeerId, Guid TentantId);
+        Task<bool> GetOpenedCashierByEmployeerId(Guid employeerId, Guid TentantId);
     }
 
 }

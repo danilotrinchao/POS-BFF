@@ -10,6 +10,7 @@ using System.Net.Http.Json;
 using System.Text;
 using POS_BFF.Core.Domain.Gateways.Authentication;
 using System.Net.Http;
+using POS_BFF.Core.Domain.Entities;
 
 namespace POS_BFF.Infra.ExternalServices.CashierGateway
 {
@@ -39,11 +40,12 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
             return httpClient;
         }
 
-        public async Task<Guid> OpenCashier(decimal InitialBalance, int EmployeerId, Guid TentantId)
+        public async Task<Guid> OpenCashier(decimal InitialBalance, Guid EmployeerId, Guid TentantId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var cs = _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
-            httpClient.DefaultRequestHeaders.Add("X-Connection-String", await cs);
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var cashier = new CashierDto
             {
                 EmployeerId = EmployeerId,
@@ -66,11 +68,12 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
         }
 
 
-        public async Task<bool> CloseCashier(int employeerId, Dictionary<EPaymentType, decimal> totals, Guid TentantId)
+        public async Task<bool> CloseCashier(Guid employeerId, Dictionary<EPaymentType, decimal> totals, Guid TentantId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var cs = _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
-            httpClient.DefaultRequestHeaders.Add("X-Connection-String", await cs);
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var url = $"/close?employeerId={employeerId}";
 
             // Serializar o objeto totals como JSON
@@ -86,8 +89,9 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
         public async Task<bool> GetOpenedCashier(Guid TentantId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var cs = _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
-            httpClient.DefaultRequestHeaders.Add("X-Connection-String", await cs);
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync("/openedCashier");
             if (response.IsSuccessStatusCode)
             {
@@ -96,11 +100,12 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task<bool> GetOpenedCashierByEmployeerId(int employeerId, Guid TentantId)
+        public async Task<bool> GetOpenedCashierByEmployeerId(Guid employeerId, Guid TentantId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var cs = _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
-            httpClient.DefaultRequestHeaders.Add("X-Connection-String", await cs);
+            var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
+            httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"/{employeerId}");
             if (response.IsSuccessStatusCode)
             {

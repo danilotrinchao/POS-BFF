@@ -18,6 +18,6 @@ namespace POS_BFF.Core.Domain.Requests
         public bool IsOpen { get; set; }
         public DateTime DateOpened { get; set; }
         public DateTime DateClosed { get; set; }
-        public int EmployeerId { get; set; }
+        public Guid EmployeerId { get; set; }
     }
 }

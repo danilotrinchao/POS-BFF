@@ -21,11 +21,11 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost("open")]
-        public async Task<ActionResult> OpenCashier([FromBody]decimal initialBalance, int employeerId, Guid tentantId)
+        public async Task<ActionResult> OpenCashier([FromBody]decimal initialBalance, Guid employeerId, Guid tenantId)
         {
             try
             {
-                var success = await _cashierOrderServiceGateway.OpenCashier(initialBalance, employeerId);
+                var success = await _cashierOrderServiceGateway.OpenCashier(initialBalance, employeerId, tenantId);
                 if (success != null)
                 {
                     return Ok(success);
@@ -43,12 +43,12 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPut("close/{employeerId}")]
-        public async Task<ActionResult> CloseCashier(int employeerId)
+        public async Task<ActionResult> CloseCashier(Guid employeerId, Guid tenantId)
         {
             try
             {
-                var totals = await _saleOrderServiceGateway.GetDailyTotals();
-                var success = await _cashierOrderServiceGateway.CloseCashier(employeerId, totals);
+                var totals = await _saleOrderServiceGateway.GetDailyTotals(tenantId);
+                var success = await _cashierOrderServiceGateway.CloseCashier(employeerId, totals, tenantId);
                 if (success)
                 {
                     return NoContent();
@@ -67,11 +67,11 @@ namespace POS_BFF.Presentation.Api.Controllers
 
 
         [HttpGet("getCashier")]
-        public async Task<ActionResult> GetIsCashierOpenedEmployeerId(int employeerId)
+        public async Task<ActionResult> GetIsCashierOpenedEmployeerId(Guid employeerId, Guid tenantId)
         {
             try
             {
-                var success = await _cashierOrderServiceGateway.GetOpenedCashierByEmployeerId(employeerId);
+                var success = await _cashierOrderServiceGateway.GetOpenedCashierByEmployeerId(employeerId, tenantId);
                 if (success != null)
                 {
                     return Ok(success);

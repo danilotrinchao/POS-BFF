@@ -9,7 +9,7 @@ namespace POS_BFF.Core.Domain.Requets
 {
     public class ClientRequest
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Surename { get; set; }
 

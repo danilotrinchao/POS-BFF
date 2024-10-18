@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using POS_BFF.Core.Domain.Entities;
 using POS_BFF.Core.Domain.Gateways.Authentication;
 using POS_BFF.Core.Domain.Requests;
 using System;
@@ -28,23 +29,26 @@ namespace POS_BFF.Infra.ExternalServices.AuthenticationGateway
 
         private async Task<HttpClient> CreateHttpClientAsync()
         {
-            var baseAddress = _configuration["AuthenticationApi:baseAddress"];
+            var baseAddress = _configuration["CompanyApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(baseAddress);
             return httpClient;
         }
 
 
-        public async Task<string> GetConnectionStringByTenantIdAsync(Guid tenantId)
+        public async Task<Tenant> GetConnectionStringByTenantIdAsync(Guid tenantId)
         {
             var httpClient = await CreateHttpClientAsync();
-            var response = await httpClient.GetAsync($"api/Sales/{tenantId}");
+            var response = await httpClient.GetAsync($"/connection-string?tenantId={tenantId}");
+
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<string>();
+                return await response.Content.ReadFromJsonAsync<Tenant>();
             }
+
             throw new HttpRequestException(response.ReasonPhrase);
         }
+
 
     }
 }

@@ -9,10 +9,10 @@ namespace POS_BFF.Core.Domain.Gateways.Sales
 {
     public interface ISaleClientServiceGateway
     {
-        Task<int> CreateClientAsync(ClientRequest client);
-        Task<ClientRequest> GetClientByIdAsync(int id);
-        Task<IEnumerable<ClientRequest>> GetAllClientsAsync();
-        Task<bool> UpdateClientAsync(ClientRequest client);
-        Task<bool> DeleteClientAsync(int id);
+        Task<Guid> CreateClientAsync(ClientRequest client, Guid TenantId);
+        Task<ClientRequest> GetClientByIdAsync(Guid id, Guid TenantId);
+        Task<IEnumerable<ClientRequest>> GetAllClientsAsync(Guid TenantId);
+        Task<bool> UpdateClientAsync(ClientRequest client, Guid TenantId);
+        Task<bool> DeleteClientAsync(Guid id, Guid TenantId);
     }
 }
