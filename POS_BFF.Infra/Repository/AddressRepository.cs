@@ -21,18 +21,18 @@ namespace POS_BFF.Infra.Repository
             return await _dbConnection.QueryAsync<Address>(query);
         }
 
-        public async Task<Address> GetByIdAsync(int id)
+        public async Task<Address> GetByIdAsync(Guid id)
         {
             var query = "SELECT * FROM Address WHERE Id = @Id";
             return await _dbConnection.QueryFirstOrDefaultAsync<Address>(query, new { Id = id });
         }
 
-        public async Task<int> InsertAsync(Address entity)
+        public async Task<Guid> InsertAsync(Address entity)
         {
             var query = @"INSERT INTO Address (ZipCode, CityName, State, Road, Number)
                       VALUES (@ZipCode, @CityName, @State, @Road, @Number)
                       RETURNING Id";
-            return await _dbConnection.ExecuteScalarAsync<int>(query, entity);
+            return await _dbConnection.ExecuteScalarAsync<Guid>(query, entity);
         }
 
         public async Task<bool> UpdateAsync(Address entity)
@@ -44,7 +44,7 @@ namespace POS_BFF.Infra.Repository
             return rowsAffected > 0;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var query = "DELETE FROM Address WHERE Id = @Id";
             var rowsAffected = await _dbConnection.ExecuteAsync(query, new { Id = id });

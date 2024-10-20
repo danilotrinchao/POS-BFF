@@ -11,10 +11,10 @@ namespace POS_BFF.Application.Contracts
     public interface IUserService
     {
         Task<IEnumerable<User>> GetAllUsersAsync();
-        Task<User> GetUserByIdAsync(int id);
-        Task<int> CreateUserAsync(UserDto user);
+        Task<User> GetUserByIdAsync(Guid id);
+        Task<Guid> CreateUserAsync(UserDto user);
         Task<bool> UpdateUserAsync(UserDto userDto);
-        Task<bool> DeleteUserAsync(int id);
+        Task<bool> DeleteUserAsync(Guid id);
         Task<User> GetUserByCPF(string cpf);
     }
 }

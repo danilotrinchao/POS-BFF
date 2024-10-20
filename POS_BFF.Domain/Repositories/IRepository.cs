@@ -9,9 +9,9 @@ namespace POS_BFF.Domain.Repositories
     public interface IRepository<TEntity> where TEntity : class
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
-        Task<TEntity> GetByIdAsync(int id);
-        Task<int> InsertAsync(TEntity entity);
+        Task<TEntity> GetByIdAsync(Guid id);
+        Task<Guid> InsertAsync(TEntity entity);
         Task<bool> UpdateAsync(TEntity entity);
-        Task<bool> DeleteAsync(int id);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

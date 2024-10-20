@@ -27,9 +27,9 @@ namespace POS_BFF.Application.Services
             return await _userRepository.GetAllAsync();
         }
 
-        public async Task<User> GetUserByIdAsync(int id)
+        public async Task<User> GetUserByIdAsync(Guid id)
         {
-            if (id <= 0)
+            if (Equals(id))
                 throw new ArgumentException("Invalid user id", nameof(id));
 
             return await _userRepository.GetByIdAsync(id);
@@ -42,7 +42,7 @@ namespace POS_BFF.Application.Services
             return await _userRepository.GetByCPF(cpf);
         }
 
-        public async Task<int> CreateUserAsync(UserDto userDto)
+        public async Task<Guid> CreateUserAsync(UserDto userDto)
         {
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
@@ -63,7 +63,7 @@ namespace POS_BFF.Application.Services
             };
             user.RoleIds = userDto.RoleIds;
             // Primeiro, insira o endereço no banco de dados
-            int addressId = await _addressRepository.InsertAsync(user.Address);
+            var addressId = await _addressRepository.InsertAsync(user.Address);
 
             // Em seguida, associe o ID do endereço ao usuário
             user.Address.Id = addressId;
@@ -71,7 +71,7 @@ namespace POS_BFF.Application.Services
             // Finalmente, insira o usuário no banco de dados
             var result = await _userRepository.InsertAsync(user);
 
-            if (result > 0)
+            if (Equals(result))
             {
                 // Cria um usuário na tabela UserClient somente se o usuário foi criado com sucesso
                 await _userRepository.CreateUserClientAsync(userDto.CPF, userDto.Password, 0, result);
@@ -111,9 +111,9 @@ namespace POS_BFF.Application.Services
             return result;
         }
 
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(Guid id)
         {
-            if (id <= 0)
+            if (Equals(id))
                 throw new ArgumentException("Invalid user id", nameof(id));
 
             return await _userRepository.DeleteAsync(id);

@@ -9,8 +9,8 @@ namespace POS_BFF.Core.Domain.Repositories
 {
     public interface IUserRoleRepository
     {
-        Task InsertAsync(int userId, Guid roleId);
-        Task<List<UserRole>> GetByUserIdAsync(int userId);
-        Task<bool> DeleteAsync(int userId, Guid roleId);
+        Task InsertAsync(Guid userId, Guid roleId);
+        Task<List<UserRole>> GetByUserIdAsync(Guid userId);
+        Task<bool> DeleteAsync(Guid userId, Guid roleId);
     }
 }

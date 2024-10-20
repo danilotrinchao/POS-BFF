@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.SqlTypes;
 
 namespace POS_BFF.Infra.Repository
 {
@@ -19,7 +20,7 @@ namespace POS_BFF.Infra.Repository
             _dbConnection = dbConnection;
         }
 
-        public async Task InsertAsync(int userId , Guid roleId)
+        public async Task InsertAsync(Guid userId , Guid roleId)
         {
             var userRole = new UserRole();
             userRole.UserId = userId;
@@ -28,14 +29,14 @@ namespace POS_BFF.Infra.Repository
             await _dbConnection.ExecuteAsync(query, userRole);
         }
 
-        public async Task<List<UserRole>> GetByUserIdAsync(int userId)
+        public async Task<List<UserRole>> GetByUserIdAsync(Guid userId)
         {
             var query = @"SELECT * FROM ""UserRole"" WHERE ""UserId"" = @UserId";
             var result =  await _dbConnection.QueryAsync<UserRole>(query, new { UserId = userId });
             return result.ToList();
         }
 
-        public async Task<bool> DeleteAsync(int userId, Guid roleId)
+        public async Task<bool> DeleteAsync(Guid userId, Guid roleId)
         {
             var query = "DELETE FROM \"UserRole\" WHERE \"UserId\" = @UserId AND \"RoleId\" = @RoleId";
             var rowsAffected = await _dbConnection.ExecuteAsync(query, new { UserId = userId, RoleId = roleId });

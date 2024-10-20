@@ -8,7 +8,7 @@ namespace POS_BFF.Domain.ValueObjects
 {
     public class Address
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string ZipCode { get; set; }
         public string CityName { get; set; }
         public string State { get; set; }

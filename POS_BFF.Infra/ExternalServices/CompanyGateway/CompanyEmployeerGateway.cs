@@ -4,6 +4,7 @@ using POS_BFF.Core.Domain.Gateways.Authentication;
 using POS_BFF.Core.Domain.Gateways.Company;
 using POS_BFF.Core.Domain.Requests;
 using POS_BFF.Core.Domain.Requets;
+using POS_BFF.Core.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,7 +82,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<EmployeerDTO> GetEmployeerByEmail(string email, Guid TenantId)
+        public async Task<EmployeerDTO> GetEmployeerByEmailAsync(string email, Guid TenantId)
         {
             try
             {
@@ -143,7 +144,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
             }
         }
 
-        public async Task<bool> DeleteClientAsync(Guid id, Guid TenantId)
+        public async Task<bool> DeleteEmployeer(Guid id, Guid TenantId)
         {
             try
             {
@@ -160,7 +161,17 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 throw new Exception(ex.Message);
             }
         }
+
+        Task<EmployeerDTO> ICompanyEmployeerGateway.GetEmployeerByCPFAsync(string cpf, Guid TenantId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<List<UserRole>> ICompanyEmployeerGateway.GetEmployeerRolesById(Guid id, Guid TenantId)
+        {
+            throw new NotImplementedException();
+        }
     }
 
-}
+
 }

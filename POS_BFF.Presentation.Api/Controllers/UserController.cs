@@ -24,9 +24,9 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<User> GetUserByIdAsync(int id)
+        public async Task<User> GetUserByIdAsync(Guid id)
         {
-            if (id <= 0)
+            if (Equals(id))
                 throw new ArgumentException("Invalid user id", nameof(id));
 
             return await _userService.GetUserByIdAsync(id);
@@ -42,7 +42,7 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<int> CreateUserAsync(UserDto user)
+        public async Task<Guid> CreateUserAsync(UserDto user)
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
@@ -60,9 +60,9 @@ namespace POS_BFF.Presentation.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(Guid id)
         {
-            if (id <= 0)
+            if (Equals(id))
                 throw new ArgumentException("Invalid user id", nameof(id));
 
             return await _userService.DeleteUserAsync(id);

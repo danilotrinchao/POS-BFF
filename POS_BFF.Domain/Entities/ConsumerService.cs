@@ -9,7 +9,7 @@ namespace POS_BFF.Core.Domain.Entities
     public class ConsumerService
     {
         public Guid id { get; set; }
-        public int  userId { get; set; }
+        public Guid  userId { get; set; }
         public Guid orderId { get; set; }
         public string serviceName { get; set; }
         public Guid serviceId { get; set; }

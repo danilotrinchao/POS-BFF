@@ -22,7 +22,7 @@ namespace POS_BFF.Infra.Repository
             return await _dbConnection.QueryAsync<User>(query);
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User> GetByIdAsync(Guid id)
         {
             var query = "SELECT * FROM \"User\" WHERE Id = @Id";
             return await _dbConnection.QueryFirstOrDefaultAsync<User>(query, new { Id = id });
@@ -42,14 +42,14 @@ namespace POS_BFF.Infra.Repository
             return user;
 
         }
-        public async Task<int> InsertAsync(User entity)
+        public async Task<Guid> InsertAsync(User entity)
         {
             var query = @"
                         INSERT INTO ""User"" (Nome, Sobrenome, DtNascimento, Email, CPF, Phone, UserType, AddressId, ""PasswordHash"", Inative)
                         VALUES (@Nome, @Sobrenome, @DtNascimento, @Email, @CPF, @Phone, @UserType, @AddressId, @PasswordHash,@Inative)
                         RETURNING Id";
 
-            return await _dbConnection.ExecuteScalarAsync<int>(query, new
+            return await _dbConnection.ExecuteScalarAsync<Guid>(query, new
             {
                 entity.Nome,
                 entity.Sobrenome,
@@ -148,7 +148,7 @@ namespace POS_BFF.Infra.Repository
 
 
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var query = $"DELETE FROM \"User\" WHERE Id = @Id";
             var rowsAffected = await _dbConnection.ExecuteAsync(query, new { Id = id });
@@ -161,7 +161,7 @@ namespace POS_BFF.Infra.Repository
             await _dbConnection.ExecuteAsync(query, userRole);
         }
 
-        public async Task CreateUserClientAsync(string username, string password, int availableTime, int userId)
+        public async Task CreateUserClientAsync(string username, string password, int availableTime, Guid userId)
         {
             string sql = @"
                             INSERT INTO public.""UserClient""
@@ -178,7 +178,7 @@ namespace POS_BFF.Infra.Repository
 
         }
 
-        public async Task UpdateUserClientAvailableTimeAsync(int userId, int quantityHours)
+        public async Task UpdateUserClientAvailableTimeAsync(Guid userId, int quantityHours)
         {
             string sql = @"
                             UPDATE public.""UserClient""
@@ -203,7 +203,7 @@ namespace POS_BFF.Infra.Repository
             }
         }
 
-        public async Task UpdateUserClientCredentialsAsync(int userId, string username, string password)
+        public async Task UpdateUserClientCredentialsAsync(Guid userId, string username, string password)
         {
             string sql = @"
                            UPDATE public.""UserClient""
@@ -232,7 +232,7 @@ namespace POS_BFF.Infra.Repository
             }
         }
 
-        public async Task<int> GetAvailableTime(int userid)
+        public async Task<int> GetAvailableTime(Guid userid)
         {
            var query = @"SELECT ""AvailableTime"" FROM public.""UserClient"" WHERE ""userid"" = @userid";
            return  _dbConnection.QuerySingle<int>(query, new { id = userid });

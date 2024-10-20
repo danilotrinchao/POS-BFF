@@ -51,7 +51,7 @@ namespace POS_BFF.Application.Services
                 var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 // Obtenha o usuário do repositório
-                var user = await _userRepository.GetByIdAsync(int.Parse(userId));
+                var user = await _userRepository.GetByIdAsync(Guid.Parse(userId));
 
                 // Verifique se o usuário foi encontrado
                 if (user != null)

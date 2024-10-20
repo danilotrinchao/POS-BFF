@@ -3,6 +3,7 @@ using POS_BFF.Core.Domain.Repositories;
 using Dapper;
 using System.Data;
 using Npgsql;
+using POS_BFF.Infra.Context;
 
 namespace POS_BFF.Infra.Repository
 {

@@ -9,6 +9,6 @@ namespace POS_BFF.Core.Domain.Gateways.Authentication
 {
     public interface IAuthenticationTenantGateway
     {
-        Task<Tenant> GetConnectionStringByTenantIdAsync(Guid? TenantId);
+        Task<Tenant> GetConnectionStringByTenantIdAsync(Guid TenantId);
     }
 }
