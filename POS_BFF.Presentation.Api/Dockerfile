@@ -7,7 +7,7 @@ WORKDIR /src
 COPY ["POS_BFF.sln", "."]
 COPY ["POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj", "POS_BFF.Presentation.Api/"]
 COPY ["POS_BFF.Application/POS_BFF.Application.csproj", "POS_BFF.Application/"]
-COPY ["POS_BFF.Domain/POS_BFF.Core.Domain.csproj", "POS_BFF.Domain/"]
+COPY ["POS_BFF.Domain/POS_BFF.Domain.csproj", "POS_BFF.Domain/"]
 COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 
 # Restaura os pacotes
@@ -24,7 +24,7 @@ RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publica a solução completa
 FROM build AS publish
-RUN dotnet publish "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Verifique os arquivos publicados
 RUN ls -la /app/publish

@@ -3,7 +3,7 @@ builder = "dockerfile"
 dockerfilePath = "./POS_BFF.Presentation.Api/Dockerfile"
 
 [deploy]
-startCommand = "POS_BFF.Presentation.Api"
+startCommand = "./POS_BFF.Presentation.Api"
 restartPolicyType = "always"
 healthcheckPath = "/health"
 
