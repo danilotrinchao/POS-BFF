@@ -13,9 +13,6 @@ COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 # Restaura os pacotes
 RUN dotnet restore "POS_BFF.sln"
 
-# Verifica se o arquivo POS_BFF.sln foi copiado corretamente
-RUN ls -la /src
-
 # Copia o resto do código para o container
 COPY . .
 
@@ -29,8 +26,13 @@ RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build
 FROM build AS publish
 RUN dotnet publish "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+# Verifique os arquivos publicados
+RUN ls -la /app/publish
+
 # Usa a imagem base para rodar a aplicação
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# ENTRYPOINT para iniciar o serviço com a DLL correta
 ENTRYPOINT ["dotnet", "POS_BFF.Presentation.Api.dll"]
