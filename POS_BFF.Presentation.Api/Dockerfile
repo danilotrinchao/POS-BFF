@@ -13,14 +13,14 @@ COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 # Restaura os pacotes
 RUN dotnet restore "POS_BFF.sln"
 
-# Verifica se os arquivos estão presentes
+# Verifica se o arquivo POS_BFF.sln foi copiado corretamente
 RUN ls -la /src
 
 # Copia o resto do código para o container
 COPY . .
 
-# Define a pasta de trabalho como a do projeto de apresentação
-WORKDIR "/src/POS_BFF.Presentation.Api"
+# Define a pasta de trabalho como /src onde está a solução
+WORKDIR /src
 
 # Builda a solução completa
 RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build

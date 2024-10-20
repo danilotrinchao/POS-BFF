@@ -106,7 +106,7 @@ builder.Services.AddHttpClient("AuthenticationApi", c => c.BaseAddress = new Uri
 builder.Services.AddHttpClient("CompanyApi", c => c.BaseAddress = new Uri("https://companyapi-production.up.railway.app/"));
 
 // Register the background service
-builder.Services.AddHostedService<StockBackgroundService>();
+//builder.Services.AddHostedService<StockBackgroundService>();
 builder.Services.AddHostedService<TimerBackgroundService>();
 
 // Configure CORS

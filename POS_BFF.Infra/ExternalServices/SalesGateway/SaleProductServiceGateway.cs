@@ -207,35 +207,34 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             throw new HttpRequestException(response.ReasonPhrase);
         }
 
-        public async Task CheckAndNotifyStockAsync(Guid TenantId)
+        public async Task CheckAndNotifyStockAsync()
         {
+            //var products = await GetAllProductsAsync(Id);
 
-            var products = await GetAllProductsAsync(TenantId);
-
-            var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
-            var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&
-                                                          x.DueDate.Value.Date <= DateTime.UtcNow.AddDays(3).Date &&
-                                                          x.DueDate.Value.Date >= DateTime.UtcNow.Date).ToList();
-
-            foreach (var product in productsOutOfStock)
-            {
-                if (_notifiedProducts.Contains(product.Name))
-                    continue; // Ignore products that have already been notified
-
-                var message = $"Produto esgotado em estoque: {product.Name}";
-                await _notificationPublisher.PublishAsync(message);
-                _notifiedProducts.Add(product.Name); // Mark the product as notified
-            }
-
-            foreach (var product in productsNearDueDate)
-            {
-                if (_notifiedProducts.Contains(product.Name))
-                    continue; // Ignore products that have already been notified
-
-                var message = $"Produto próximo da data de vencimento: {product.Name}, Data de vencimento: {product.DueDate.Value.ToShortDateString()}";
-                await _notificationPublisher.PublishAsync(message);
-                _notifiedProducts.Add(product.Name); // Mark the product as notified
-            }
+            //var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
+            //var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&
+            //x.DueDate.Value.Date <= DateTime.UtcNow.AddDays(3).Date &&
+            //                                              x.DueDate.Value.Date >= DateTime.UtcNow.Date).ToList();
+            //
+            //foreach (var product in productsOutOfStock)
+            //{
+            //    if (_notifiedProducts.Contains(product.Name))
+            //        continue; // Ignore products that have already been notified
+            //
+            //    var message = $"Produto esgotado em estoque: {product.Name}";
+            //    await _notificationPublisher.PublishAsync(message);
+            //    _notifiedProducts.Add(product.Name); // Mark the product as notified
+            //}
+            //
+            //foreach (var product in productsNearDueDate)
+            //{
+            //    if (_notifiedProducts.Contains(product.Name))
+            //        continue; // Ignore products that have already been notified
+            //
+            //    var message = $"Produto próximo da data de vencimento: {product.Name}, Data de vencimento: {product.DueDate.Value.ToShortDateString()}";
+            //    await _notificationPublisher.PublishAsync(message);
+            //    _notifiedProducts.Add(product.Name); // Mark the product as notified
+            //}
         }
 
         public async Task<List<string>> GetNotifyStockAsync(Guid TenantId)

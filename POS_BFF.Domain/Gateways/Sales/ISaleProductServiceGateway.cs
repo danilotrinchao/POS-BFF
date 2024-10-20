@@ -17,12 +17,12 @@ namespace POS_BFF.Core.Domain.Gateways.Sales
         Task<bool> DeleteProductAsync(Guid id, Guid TenantId);
         Task<bool> DeleteServiceAsync(Guid id, Guid TenantId);
         Task<IEnumerable<VirtualProductDTO>> GetAllServicesAsync( Guid TenantId);
-        Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync( Guid TenantId);
+        Task<IEnumerable<PhysiqueProductDTO>> GetAllProductsAsync(Guid TenantId);
         Task<VirtualProductDTO> GetVirtualProductAsync(Guid serviceid, Guid TenantId);
         Task<PhysiqueProductDTO> GetPhysiqueProductAsync(Guid productid, Guid TenantId);
         Task<VirtualProductDTO> GetServiceById(Guid id, Guid TenantId);
         Task<PhysiqueProductDTO> GetProductById(Guid id, Guid TenantId);
-        Task CheckAndNotifyStockAsync( Guid TenantId);
+        Task CheckAndNotifyStockAsync();
         Task<List<string>> GetNotifyStockAsync(Guid TenantId);
         Task<PhysiqueProductDTO> GetProductByBarCode(string barcode, Guid TenantId);
     }
