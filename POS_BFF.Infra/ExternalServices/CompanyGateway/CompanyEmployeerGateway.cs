@@ -50,6 +50,10 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
                 var response = await httpClient.PostAsJsonAsync("api/createEmployeer", employeer);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    await _authenticationTenantGateway.CreateUserEmployeer(employeer, TenantId);
+                }
                 response.EnsureSuccessStatusCode();
                 var createdClient = await response.Content.ReadFromJsonAsync<EmployeerDTO>();
                 return createdClient?.Id ?? Guid.NewGuid();

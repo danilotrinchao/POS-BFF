@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using POS_BFF.Application.DTOs;
 using POS_BFF.Core.Domain.Entities;
 using POS_BFF.Core.Domain.Gateways.Authentication;
 using POS_BFF.Core.Domain.Requests;
@@ -47,6 +48,29 @@ namespace POS_BFF.Infra.ExternalServices.AuthenticationGateway
             }
 
             throw new HttpRequestException(response.ReasonPhrase);
+        }
+
+        public async Task<Guid> CreateUserEmployeer(EmployeerDTO employeer, Guid TenantId)
+        {
+            try
+            {
+                var register = new RegisterUserDTO
+                {
+                    Email = employeer.Email,
+                    Password = employeer.PasswordHash,
+                    TenantId = TenantId
+                };
+                var httpClient = await CreateHttpClientAsync();
+                var response = await httpClient.PostAsJsonAsync("/register", register);
+                response.EnsureSuccessStatusCode();
+                var createdClient = await response.Content.ReadFromJsonAsync<RegisterUserDTO>();
+                return Guid.NewGuid();
+            }
+            catch (Exception ex)
+            {
+                // Tratar exceção e registrar para monitoramento
+                throw new Exception(ex.Message);
+            }
         }
 
 

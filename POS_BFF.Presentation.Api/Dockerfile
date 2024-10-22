@@ -35,4 +35,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # ENTRYPOINT para iniciar o serviço com a DLL correta
-ENTRYPOINT ["dotnet", "POS_BFF.Presentation.Api.dll"]
+ENTRYPOINT ["dotnet", "/POS_BFF.Presentation.Api.dll"]
