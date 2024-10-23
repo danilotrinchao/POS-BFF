@@ -24,7 +24,7 @@ RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publica a solução completa
 FROM build AS publish
-RUN dotnet publish "POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Verifique os arquivos publicados
 RUN ls -la /app/publish
