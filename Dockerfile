@@ -11,21 +11,20 @@ COPY ["POS_BFF.Domain/POS_BFF.Core.Domain.csproj", "POS_BFF.Domain/"]
 COPY ["POS_BFF.Infra/POS_BFF.Infra.csproj", "POS_BFF.Infra/"]
 
 # Restaura os pacotes
-RUN dotnet restore "POS_BFF.sln"
+RUN dotnet restore "./POS_BFF.sln"
 
 # Copia o resto do código para o container
 COPY . .
 
 # Define a pasta de trabalho como /src onde está a solução
-WORKDIR /src
+WORKDIR "/src/POS_BFF.Presentation.Api"
 
 # Builda a solução completa
-RUN dotnet build "POS_BFF.sln" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "POS_BFF.Presentation.Api.csproj" -c Release -o /app/build
 
 # Publica a solução completa
 FROM build AS publish
-RUN dotnet publish "POS_BFF.Presentation.Api/POS_BFF.Presentation.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
+RUN dotnet publish "POS_BFF.Presentation.Api.csproj" -c Release -o /app/publish
 # Verifique os arquivos publicados
 RUN ls -la /app/publish
 
