@@ -131,7 +131,13 @@ builder.WebHost.UseUrls($"http://*:{port}");
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        policy => policy.WithOrigins("http://192.168.100.19:3000") // Altere para o URL do seu front-end
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
