@@ -129,8 +129,6 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "8000";
 builder.WebHost.UseUrls($"http://*:{port}");
 
 builder.Services.AddHealthChecks();
-
-var app = builder.Build();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -138,6 +136,8 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
+var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
