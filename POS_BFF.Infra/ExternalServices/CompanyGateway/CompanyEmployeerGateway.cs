@@ -125,7 +125,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 else if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Falha ao criar a empresa. Status: {response.StatusCode}, Erro: {errorContent}");
+                    throw new Exception($"Falha ao listar funcionarios. Status: {response.StatusCode}, Erro: {errorContent} -end-");
                 }
                 throw new HttpRequestException(response.ReasonPhrase);
             }
