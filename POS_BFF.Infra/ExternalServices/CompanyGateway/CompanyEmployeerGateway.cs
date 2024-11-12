@@ -35,7 +35,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
 
         private async Task<HttpClient> CreateHttpClientAsync()
         {
-            var baseAddress = _configuration["AuthenticationApi:baseAddress"];
+            var baseAddress = _configuration["CompanyApi:baseAddress"];
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.BaseAddress = new Uri(baseAddress);
             return httpClient;
