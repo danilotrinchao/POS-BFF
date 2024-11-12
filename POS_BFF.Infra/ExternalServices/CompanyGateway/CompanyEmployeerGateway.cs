@@ -94,7 +94,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.GetAsync($"email/{email}");
+                var response = await httpClient.GetAsync($"api/Employeer/email/{email}");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<EmployeerDTO>();
@@ -116,7 +116,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.GetAsync("/api/Employeer/getAllEmployeers");
+                var response = await httpClient.GetAsync("api/Employeer/getAllEmployeers");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<IEnumerable<EmployeerDTO>>();
@@ -138,7 +138,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.PutAsJsonAsync($"api/updateEmployeer/{employeer.Id}", employeer);
+                var response = await httpClient.PutAsJsonAsync($"api/Employeer/updateEmployeer/{employeer.Id}", employeer);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -156,7 +156,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.DeleteAsync($"api/Client/{id}");
+                var response = await httpClient.DeleteAsync($"api/Employeer/Client/{id}");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
