@@ -121,6 +121,12 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 {
                     return await response.Content.ReadFromJsonAsync<IEnumerable<EmployeerDTO>>();
                 }
+                // Verifica se a resposta foi bem-sucedida
+                else if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Falha ao criar a empresa. Status: {response.StatusCode}, Erro: {errorContent}");
+                }
                 throw new HttpRequestException(response.ReasonPhrase);
             }
             catch (Exception ex)
