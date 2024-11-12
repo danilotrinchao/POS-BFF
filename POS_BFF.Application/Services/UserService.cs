@@ -22,19 +22,19 @@ namespace POS_BFF.Application.Services
             _roleRepository = roleRepository;
         }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<User>> GetAllUsersAsync(Guid tenantId)
         {
             return await _userRepository.GetAllAsync();
         }
 
-        public async Task<User> GetUserByIdAsync(Guid id)
+        public async Task<User> GetUserByIdAsync(Guid id, Guid tenantId)
         {
             if (Equals(id))
                 throw new ArgumentException("Invalid user id", nameof(id));
 
             return await _userRepository.GetByIdAsync(id);
         }
-        public async Task<User> GetUserByCPF(string cpf)
+        public async Task<User> GetUserByCPF(string cpf, Guid tenantId)
         {
             if (cpf.Length <= 0)
                 throw new ArgumentException("Invalid user id", nameof(cpf));
@@ -42,7 +42,7 @@ namespace POS_BFF.Application.Services
             return await _userRepository.GetByCPF(cpf);
         }
 
-        public async Task<Guid> CreateUserAsync(UserDto userDto)
+        public async Task<Guid> CreateUserAsync(UserDto userDto, Guid tenantId)
         {
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
@@ -83,7 +83,7 @@ namespace POS_BFF.Application.Services
 
             return result;
         }
-        public async Task<bool> UpdateUserAsync(UserDto userDto)
+        public async Task<bool> UpdateUserAsync(UserDto userDto, Guid tenantId)
         {
             if (userDto == null)
                 throw new ArgumentNullException(nameof(userDto));
@@ -111,7 +111,7 @@ namespace POS_BFF.Application.Services
             return result;
         }
 
-        public async Task<bool> DeleteUserAsync(Guid id)
+        public async Task<bool> DeleteUserAsync(Guid id, Guid tenantId)
         {
             if (Equals(id))
                 throw new ArgumentException("Invalid user id", nameof(id));
