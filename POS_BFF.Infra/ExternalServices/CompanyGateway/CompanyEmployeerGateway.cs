@@ -116,7 +116,7 @@ namespace POS_BFF.Infra.ExternalServices.CompanyGateway
                 var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
                 httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
                 httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-                var response = await httpClient.GetAsync("/getAllEmployeers");
+                var response = await httpClient.GetAsync("/api/Employeer/getAllEmployeers");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<IEnumerable<EmployeerDTO>>();
