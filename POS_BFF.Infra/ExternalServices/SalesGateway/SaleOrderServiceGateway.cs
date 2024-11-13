@@ -60,8 +60,12 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-            var response = await httpClient.PostAsJsonAsync("api/Sales", saleDto);
-            response.EnsureSuccessStatusCode();
+            var response = await httpClient.PostAsJsonAsync("api/Sales/createOrder", saleDto);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Falha ao criar a empresa. Status: {response.StatusCode}, Erro: {errorContent}");
+            }
             var saleId = await response.Content.ReadFromJsonAsync<Guid>();
             return saleId;
         }
@@ -84,6 +88,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             var httpClient = await CreateHttpClientAsync();
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync($"api/Sales/{orderid}/items");
             if (response.IsSuccessStatusCode)
             {
@@ -96,6 +101,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             var httpClient = await CreateHttpClientAsync();
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync("api/Sales");
             if (response.IsSuccessStatusCode)
             {
@@ -109,6 +115,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             var httpClient = await CreateHttpClientAsync();
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/complete", saleDTO); 
             if (response.IsSuccessStatusCode)
             {
@@ -147,6 +154,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             var httpClient = await CreateHttpClientAsync();
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PutAsJsonAsync($"api/Sales/{id}/cancel", id);
             return response.IsSuccessStatusCode;
         }
@@ -156,10 +164,17 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             var httpClient = await CreateHttpClientAsync();
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TenantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
+            httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.GetAsync("api/Sales/daily-totals");
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<Dictionary<EPaymentType, decimal>>();
+            }
+            // Verifica se a resposta foi bem-sucedida
+            else if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Falha ao criar a empresa. Status: {response.StatusCode}, Erro: {errorContent}");
             }
             throw new HttpRequestException(response.ReasonPhrase);
         }
