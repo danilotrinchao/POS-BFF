@@ -56,7 +56,7 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Falha ao criar a empresa. Status: {response.StatusCode}, Erro: {errorContent}");
+                throw new Exception($"Falha ao abrir caixa. Status: {response.StatusCode}, Erro: {errorContent}");
             }
 
             var createdClient = await response.Content.ReadFromJsonAsync<Guid>();
