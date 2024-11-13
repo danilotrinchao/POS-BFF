@@ -1,16 +1,13 @@
-﻿using POS_BFF.Core.Domain.Enums;
-using POS_BFF.Core.Domain.Gateways.Cashier;
-using POS_BFF.Core.Domain.Requests;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using System.Net.Http.Headers;
+using POS_BFF.Core.Domain.Enums;
+using POS_BFF.Core.Domain.Gateways.Authentication;
+using POS_BFF.Core.Domain.Gateways.Cashier;
+using POS_BFF.Core.Domain.Requests;
 using System.Net.Http.Json;
 using System.Text;
-using POS_BFF.Core.Domain.Gateways.Authentication;
-using System.Net.Http;
-using POS_BFF.Core.Domain.Entities;
 
 namespace POS_BFF.Infra.ExternalServices.CashierGateway
 {
@@ -46,7 +43,7 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
             var cs = await _authenticationTenantGateway.GetConnectionStringByTenantIdAsync(TentantId);
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
-            var cashier = new CashierDto
+            var cashier = new CashierOpenedDto
             {
                 EmployeerId = EmployeerId,
                 InitialBalance = InitialBalance
