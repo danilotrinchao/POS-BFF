@@ -53,15 +53,15 @@ namespace POS_BFF.Infra.ExternalServices.CashierGateway
 
             var responseString = await response.Content.ReadAsStringAsync();
             responseString = responseString.Replace("\\", "").Trim('"');
-            if (!responseString.IsNullOrEmpty())
+            if (!response.IsSuccessStatusCode)
             {
-                var result = Guid.Parse(responseString);
-                return result;
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Falha ao criar a empresa. Status: {response.StatusCode}, Erro: {errorContent}");
             }
-            else
-            {
-                throw new Exception($"Failed to open cashier. Status code: {response.StatusCode}, Reason: {response.ReasonPhrase}");
-            }
+
+            var createdClient = await response.Content.ReadFromJsonAsync<Guid>();
+            return createdClient;
+ 
         }
 
 
