@@ -132,7 +132,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        policy => policy.WithOrigins("http://192.168.100.19:3000", "http://192.168.100.19:3000/newProduto", "http://192.168.100.19:3000/editProduto", "http://192.168.100.19:3000/caixa") // Altere para o URL do seu front-end
+        policy => policy.WithOrigins("http://localhost:3000", "http://localhost:3000/newProduto", "http://localhost:3000/editProduto", "http://localhost:3000/caixa", "http://localhost:3000/venda") // Altere para o URL do seu front-end
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
