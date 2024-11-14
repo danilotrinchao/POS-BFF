@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace POS_BFF.Core.Domain.Configurations
 {
@@ -10,7 +6,17 @@ namespace POS_BFF.Core.Domain.Configurations
     {
         public string Key { get; set; }
         public string Issuer { get; set; }
-        public string Audience { get; set; }
-        public double DurationInMinutes { get; set; }
+        public List<string> Audience { get; set; }
+        public int DurationInMinutes { get; set; }
+
+        [ActivatorUtilitiesConstructor]  // Indica o construtor a ser usado
+        public JwtSettings() { }
+
+        // Construtor adicional (privado ou sem o atributo)
+        private JwtSettings(string key)
+        {
+            Key = key;
+        }
     }
+
 }

@@ -50,7 +50,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings.Issuer,
-        ValidAudiences = jwtSettings.Audience.Split(';'), // Support multiple audiences
+        ValidAudiences = jwtSettings.Audience, // Support multiple audiences
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
     };
 });

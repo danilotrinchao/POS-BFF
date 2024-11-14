@@ -119,12 +119,13 @@ namespace POS_BFF.Application.Services
             var expires = DateTime.Now.AddMinutes(_jwtSettings.DurationInMinutes);
 
             var token = new JwtSecurityToken(
-                _jwtSettings.Issuer,
-                _jwtSettings.Audience,
-                claims,
-                expires: expires,
-                signingCredentials: creds
-            );
+                                                _jwtSettings.Issuer,
+                                                string.Join(";", _jwtSettings.Audience),  // Junta as audiências em uma string separada por ponto e vírgula
+                                                claims,
+                                                expires: expires,
+                                                signingCredentials: creds
+                                            );
+
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
