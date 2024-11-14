@@ -30,7 +30,7 @@ namespace POS_BFF.Application.Backgrounds
                     }
 
                     await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
-                }
+              }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Erro no TimerBackgroundService");

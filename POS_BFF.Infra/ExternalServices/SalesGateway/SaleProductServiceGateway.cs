@@ -59,8 +59,11 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
             httpClient.DefaultRequestHeaders.Add("X-Connection-String", cs.ConnectionString);
             httpClient.DefaultRequestHeaders.Add("X-Schema", cs.Schema);
             var response = await httpClient.PostAsJsonAsync("api/Product/physical", productDto);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Guid>();
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<Guid>();
+            }
+            return Guid.NewGuid();
         }
         public async Task<Guid> AddServicetAsync(VirtualProductDTO productDto, Guid TenantId)
         {

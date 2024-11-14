@@ -100,8 +100,8 @@ builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway
 builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
 builder.Services.AddTransient<IAuthenticationTenantGateway, AuthenticationTenantGateway>();
 builder.Services.AddTransient<ICompanyEmployeerGateway, CompanyEmployeerGateway>();
-builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("https://localhost:44358/"));
-builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("https://localhost:44306/"));
+builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("https://salesservice-production.up.railway.app/"));
+builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("https://cashierservice-production.up.railway.app/"));
 builder.Services.AddHttpClient("AuthenticationApi", c => c.BaseAddress = new Uri("https://authenticationapi-production-9b49.up.railway.app/"));
 builder.Services.AddHttpClient("CompanyApi", c => c.BaseAddress = new Uri("https://companyapi-production.up.railway.app/"));
 
@@ -132,7 +132,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        policy => policy.WithOrigins("http://localhost:3000", "http://localhost:3000/newProduto", "http://localhost:3000/editProduto", "http://localhost:3000/caixa", "http://localhost:3000/venda") // Altere para o URL do seu front-end
+        policy => policy.WithOrigins("https://login.ubuntuprime.com.br/", "https://login.ubuntuprime.com.br/newProduto", "https://login.ubuntuprime.com.br/editProduto", "https://login.ubuntuprime.com.br/caixa", "https://login.ubuntuprime.com.br/venda") // Altere para o URL do seu front-end
                         .AllowAnyHeader()
                         .AllowAnyMethod());
 });
