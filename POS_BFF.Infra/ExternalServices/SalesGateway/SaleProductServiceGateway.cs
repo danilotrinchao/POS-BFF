@@ -246,7 +246,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
 
             var products = await GetAllProductsAsync(TenantId);
 
-            var productsOutOfStock = products.Where(x => x.Quantity <= 0).ToList();
+            var productsOutOfStock = products.Where(x => x.Quantity <= 2).ToList();
             var productsNearDueDate = products.Where(x => x.DueDate.HasValue &&
                                                           x.DueDate.Value.Date <= DateTime.UtcNow.AddDays(3).Date &&
                                                           x.DueDate.Value.Date >= DateTime.UtcNow.Date).ToList();
