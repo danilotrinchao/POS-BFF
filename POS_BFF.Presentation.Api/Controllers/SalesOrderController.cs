@@ -23,7 +23,7 @@ namespace POS_BFF.Presentation.Api.Controllers
             {
 
                 var saleId = await _salesOrderServiceGateway.CreateSaleAsync(saleDto, tenantId);
-                return CreatedAtAction(nameof(GetSaleById), new { id = saleId }, null);
+                return Ok(saleId);
             }
             catch (Exception ex)
             {
