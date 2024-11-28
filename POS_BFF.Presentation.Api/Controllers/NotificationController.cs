@@ -31,23 +31,35 @@ namespace POS_BFF.Presentation.Api.Controllers
             Response.Headers.Add("Cache-Control", "no-cache");
             Response.Headers.Add("Connection", "keep-alive");
 
+            Response.Headers.Add("X-Accel-Buffering", "no"); // NGINX e proxies
+            Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+            Response.Headers.Add("Pragma", "no-cache");
+            Response.Headers.Add("Expires", "0");
+
             // Loop contínuo para enviar notificações em tempo real
             while (!HttpContext.RequestAborted.IsCancellationRequested)
             {
-                // Notificações de produtos
-                var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync(TenantId);
-                var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
-
-                foreach (var notification in productNotifications.Concat(servicesNotifications))
+                try
                 {
-                    var message = $"data: {notification}\n\n"; // Formato para SSE
-                    await Response.WriteAsync(message);
-                    await Response.Body.FlushAsync(); // Assegura que a mensagem é enviada imediatamente
-                    await Task.Delay(5000); // Ajuste o atraso conforme necessário
-                }
+                    var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync(TenantId);
+                    var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
 
-                await Task.Delay(10000); // Ajuste o intervalo conforme necessário
+                    foreach (var notification in productNotifications.Concat(servicesNotifications))
+                    {
+                        var message = $"data: {notification}\n\n";
+                        await Response.WriteAsync(message);
+                        await Response.Body.FlushAsync();
+                    }
+
+                    await Task.Delay(10000); // Ajuste conforme necessário
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro no SSE: {ex.Message}");
+                    break; // Encerra o loop em caso de erro
+                }
             }
+
         }
 
 
