@@ -27,40 +27,46 @@ namespace POS_BFF.Presentation.Api.Controllers
         [HttpGet("stream")]
         public async Task StreamNotifications(Guid TenantId)
         {
-            Response.ContentType = "text/event-stream";
-            //Response.Headers.Add("Cache-Control", "no-cache");
-            Response.Headers.Add("Connection", "keep-alive");
-
-            Response.Headers.Add("X-Accel-Buffering", "no"); // NGINX e proxies
-            Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
-            Response.Headers.Add("Pragma", "no-cache");
-            Response.Headers.Add("Expires", "0");
-            Console.WriteLine("Iniciando o SSE para TenantId: " + TenantId);
-            // Loop contínuo para enviar notificações em tempo real
-            while (!HttpContext.RequestAborted.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync(TenantId);
-                    var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
+                Response.ContentType = "text/event-stream";
+                Response.Headers.Add("Cache-Control", "no-cache");
+                Response.Headers.Add("Connection", "keep-alive");
+                Response.Headers.Add("X-Accel-Buffering", "no"); // Desabilita buffering
 
-                    foreach (var notification in productNotifications.Concat(servicesNotifications))
+                while (!HttpContext.RequestAborted.IsCancellationRequested)
+                {
+                    try
                     {
-                        var message = $"data: {notification}\n\n";
-                        await Response.WriteAsync(message);
+                        var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync(TenantId);
+                        var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
+
+                        foreach (var notification in productNotifications.Concat(servicesNotifications))
+                        {
+                            var message = $"data: {notification}\n\n"; // Formato SSE
+                            await Response.WriteAsync(message);
+                            await Response.Body.FlushAsync();
+                        }
+
+                        await Task.Delay(10000); // Aguarda antes de enviar a próxima rodada
+                    }
+                    catch (Exception innerEx)
+                    {
+                        Console.WriteLine($"Erro ao buscar notificações: {innerEx.Message}");
+                        // Opcional: envie uma mensagem SSE com o erro
+                        await Response.WriteAsync($"data: Erro ao processar notificações: {innerEx.Message}\n\n");
                         await Response.Body.FlushAsync();
                     }
-
-                    await Task.Delay(10000); // Ajuste conforme necessário
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Erro no SSE: {ex.Message}");
-                    throw; // Encerra o loop em caso de erro
                 }
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro no SSE: {ex.Message}");
+                // Opcional: envie resposta de erro para o cliente
+                HttpContext.Abort();
+            }
         }
+
 
 
     }
