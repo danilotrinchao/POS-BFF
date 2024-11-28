@@ -1,30 +1,30 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using POS_BFF.Application.Backgrounds;
 using POS_BFF.Application.Contracts;
 using POS_BFF.Application.Services;
 using POS_BFF.Core.Domain.Configurations;
+using POS_BFF.Core.Domain.Gateways.Authentication;
 using POS_BFF.Core.Domain.Gateways.Cashier;
+using POS_BFF.Core.Domain.Gateways.Company;
 using POS_BFF.Core.Domain.Gateways.Sales;
 using POS_BFF.Core.Domain.Interfaces;
 using POS_BFF.Core.Domain.Repositories;
 using POS_BFF.Domain.Repositories;
 using POS_BFF.Infra.Cache;
+using POS_BFF.Infra.ExternalServices.AuthenticationGateway;
+using POS_BFF.Infra.ExternalServices.CashierGateway;
+using POS_BFF.Infra.ExternalServices.CompanyGateway;
 using POS_BFF.Infra.ExternalServices.SalesGateway;
 using POS_BFF.Infra.Notifications;
 using POS_BFF.Infra.Repository;
 using POS_BFF.Infra.Utils;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Npgsql;
 using StackExchange.Redis;
 using System.Data;
 using System.Security.Cryptography;
 using System.Text;
-using POS_BFF.Infra.ExternalServices.CashierGateway;
-using POS_BFF.Core.Domain.Gateways.Authentication;
-using POS_BFF.Infra.ExternalServices.AuthenticationGateway;
-using POS_BFF.Core.Domain.Gateways.Company;
-using POS_BFF.Infra.ExternalServices.CompanyGateway;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,7 +100,7 @@ builder.Services.AddTransient<ISaleOrderServiceGateway, SalesOrderServiceGateway
 builder.Services.AddTransient<ICashierOrderServiceGateway, CashierOrderServiceGateway>();
 builder.Services.AddTransient<IAuthenticationTenantGateway, AuthenticationTenantGateway>();
 builder.Services.AddTransient<ICompanyEmployeerGateway, CompanyEmployeerGateway>();
-builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("https://salesservice-production.up.railway.app/"));
+builder.Services.AddHttpClient("SalesApi", c => c.BaseAddress = new Uri("https://localhost:44358/"));
 builder.Services.AddHttpClient("CashierApi", c => c.BaseAddress = new Uri("https://cashierservice-production.up.railway.app/"));
 builder.Services.AddHttpClient("AuthenticationApi", c => c.BaseAddress = new Uri("https://authenticationapi-production-9b49.up.railway.app/"));
 builder.Services.AddHttpClient("CompanyApi", c => c.BaseAddress = new Uri("https://companyapi-production.up.railway.app/"));
@@ -149,7 +149,16 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     });
 }
 
-
+app.Map("/notifications", async context =>
+{
+    context.Response.Headers.Add("Content-Type", "text/event-stream");
+    while (true)
+    {
+        await context.Response.WriteAsync($"data: {DateTime.Now}\n\n");
+        await context.Response.Body.FlushAsync();
+        await Task.Delay(1000);
+    }
+}).WithMetadata(new EnableCorsAttribute("AllowAll"));
 app.UseHealthChecks("/health");
 app.UseCors("AllowAllOrigins");
 //app.UseHttpsRedirection();
