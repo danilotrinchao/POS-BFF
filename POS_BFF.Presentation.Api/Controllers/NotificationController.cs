@@ -28,7 +28,7 @@ namespace POS_BFF.Presentation.Api.Controllers
         public async Task StreamNotifications(Guid TenantId)
         {
             Response.ContentType = "text/event-stream";
-            Response.Headers.Add("Cache-Control", "no-cache");
+            //Response.Headers.Add("Cache-Control", "no-cache");
             Response.Headers.Add("Connection", "keep-alive");
 
             Response.Headers.Add("X-Accel-Buffering", "no"); // NGINX e proxies
