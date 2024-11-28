@@ -35,7 +35,7 @@ namespace POS_BFF.Presentation.Api.Controllers
             Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
             Response.Headers.Add("Pragma", "no-cache");
             Response.Headers.Add("Expires", "0");
-
+            Console.WriteLine("Iniciando o SSE para TenantId: " + TenantId);
             // Loop contínuo para enviar notificações em tempo real
             while (!HttpContext.RequestAborted.IsCancellationRequested)
             {
@@ -56,7 +56,7 @@ namespace POS_BFF.Presentation.Api.Controllers
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Erro no SSE: {ex.Message}");
-                    break; // Encerra o loop em caso de erro
+                    throw; // Encerra o loop em caso de erro
                 }
             }
 
