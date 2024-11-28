@@ -266,7 +266,7 @@ namespace POS_BFF.Infra.ExternalServices.SalesGateway
                 if (_notifiedProducts.Contains(product.Name))
                     continue; // Ignora produtos já notificados
 
-                var message = $"Produto próximo da data de vencimento: {product.Name}, Data de vencimento: {product.DueDate.Value.ToShortDateString()}";
+                var message = $"Produto próximo da data de vencimento: {product.Name}, Data de vencimento: {product.DueDate.Value.ToString("dd/MM/yyyy")}";
                 notifications.Add(message); // Adiciona a mensagem à lista de notificações
                 _notifiedProducts.Add(product.Name); // Marca o produto como notificado
             }
