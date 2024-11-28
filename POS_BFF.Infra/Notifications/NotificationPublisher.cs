@@ -1,12 +1,7 @@
-﻿using POS_BFF.Core.Domain.Entities;
+﻿using Microsoft.AspNetCore.Http;
 using POS_BFF.Core.Domain.Interfaces;
-using Microsoft.AspNetCore.Http;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace POS_BFF.Infra.Notifications
 {

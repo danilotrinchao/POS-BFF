@@ -39,9 +39,9 @@ namespace POS_BFF.Presentation.Api.Controllers
                     try
                     {
                         var productNotifications = await _saleProductServiceGateway.GetNotifyStockAsync(TenantId);
-                        var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
+                        // var servicesNotifications = await _controlTimeService.GetNotifyServiceAsync();
 
-                        foreach (var notification in productNotifications.Concat(servicesNotifications))
+                        foreach (var notification in productNotifications)
                         {
                             var message = $"data: {notification}\n\n"; // Formato SSE
                             await Response.WriteAsync(message);
